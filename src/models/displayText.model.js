@@ -17,7 +17,7 @@ const displayTextSchema = new Schema({
     type: String,
   },
   isStatic: {
-    type: Buffer,
+    type: Boolean,
     required: true,
     default: false,
   },

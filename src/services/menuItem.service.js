@@ -25,7 +25,10 @@ const queryMenuItems = async (filter, options) => {
   const menuItems = await MenuItem.paginate(filter, options);
   return menuItems;
 };
-
+const getMenuItems = async () => {
+  const menuItems = await MenuItem.find({});
+  return menuItems;
+};
 /**
  * Get menuItem by id
  * @param {ObjectId} id
@@ -69,6 +72,7 @@ module.exports = {
   createMenuItem,
   queryMenuItems,
   getMenuItemById,
+  getMenuItems,
   updateMenuItemById,
   deleteMenuItemById,
 };
