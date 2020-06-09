@@ -5,6 +5,7 @@ const ussdConfig = require('./ussdConfig.route');
 const docsRoute = require('./docs.route');
 const displayTextRoute = require('./displayText.route');
 const menuItemRoute = require('./menuItem.route');
+const menuRoute = require('./menu.route');
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/ussdConfig', ussdConfig);
 router.use('/docs', docsRoute);
 router.use('/displayText', displayTextRoute);
 router.use('/menuItem', menuItemRoute);
+router.use('/menu', menuRoute);
 
 module.exports = router;

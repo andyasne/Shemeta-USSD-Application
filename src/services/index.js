@@ -3,5 +3,6 @@ module.exports.emailService = require('./email.service');
 module.exports.tokenService = require('./token.service');
 module.exports.userService = require('./user.service');
 module.exports.menuItemService = require('./menuItem.service');
+module.exports.menuService = require('./menu.service');
 module.exports.displayTextService = require('./displayText.service');
 module.exports.ussdConfigService = require('./ussdConfig.service');

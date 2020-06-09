@@ -1,69 +1,106 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable no-unused-vars */
+/* eslint-disable prefer-destructuring */
+const { Menu } = require('../models');
+const menuItemService = require('./menuItem.service');
+const displayTextService = require('./displayText.service');
 
-// const httpStatus = require('http-status');
-// const { MenuItem, DisplayText, USSDConfig } = require('../models');
-// const menuItemService = require('./menuItem.service');
+let allMenuItems;
+let allDisplayText;
 
-// const ApiError = require('../utils/ApiError');
+function buildMenu(menuItemId) {
+  const _menu = new Menu(menuItemId);
 
-// const getFullMenuTree = async () => {
-// let fullMenuTree=[];
-// let haschildren=true;
-// var endOfFullMenuTree=[];
+  allMenuItems.forEach((menuItem) => {
+    let displayText = {};
 
-//   //Find items where no parent is specified
+    if (menuItem.parentMenuItemId !== undefined) {
+      if (menuItem.parentMenuItemId.equals(menuItemId)) {
+        allDisplayText.forEach((dt) => {
+          if (menuItem.displayText !== undefined) {
+            if (menuItem.displayText.equals(dt._id)) {
+              displayText = dt;
+            }
+          }
+        });
+        _menu.addMenuElements(menuItem, displayText);
+      }
+    }
+  });
 
-//   const noParentMenuItems = await MenuItem.find({})
+  return _menu;
+}
 
-//   if((await noParentMenuItems).length===0){
-//    return [];
-//   }
-// //Add the parent
-//   fullMenuTree.push([noParentMenuItems]);
+function getChildMenusFromMI(parent, menuSet) {
+  if (parent.menuElements) {
+    parent.menuElements.forEach((menuElement) => {
+      const newMenu = buildMenu(menuElement.menuItem.id);
+      if (newMenu.menuElements.length !== 0) {
+        menuSet.push(newMenu);
+      }
+    });
+  }
+}
 
-//   while (haschildren) {
+function getMenuSets(endOfFullMenuTree) {
+  const menuSet = [];
+  endOfFullMenuTree.forEach((parentMenu) => {
+    getChildMenusFromMI(parentMenu, menuSet);
+  });
 
-//     endOfFullMenuTree = fullMenuTree[fullMenuTree.length - 1];
-//     lastMenuSet = getMenus(endOfFullMenuTree);
+  return menuSet;
+}
 
-//     if (lastMenuSet.length == 0) {
-//       haschildren = false;
-//     } else {
-//       fullMenuTree.push(lastMenuSet);
-//     }
-//   }
+function getParentmenu(menuItem, parentMenu) {
+  let displayText = {};
 
-// };
+  if (menuItem.parentMenuItemId === null) {
+    allDisplayText.forEach((dt) => {
+      if (menuItem.displayText !== undefined) {
+        if (menuItem.displayText.equals(dt._id)) {
+          displayText = dt;
+        }
+      }
+    });
+  }
+  parentMenu.addMenuElements(menuItem, displayText);
+}
+const getFullMenuSet = async () => {
+  const fullMenuTree = [];
+  let containsChildMenuSets = true;
 
-// function getMenus(menus)
-// {
-//   let result=[];
-//   menus.array.forEach(menu => {
-//     result.push(getChildMenus(menu));
+  const allMenuItemsPromise = menuItemService.getMenuItems();
+  const allDisplayTextPromise = displayTextService.getDisplayTexts();
 
-//   });
+  let lastMenuSet = [];
 
-//   return result;
-// }
+  await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
+    allMenuItems = values[0];
+    allDisplayText = values[1];
+    const parentMenu = new Menu('0');
 
-// function getChildMenus(menu) {
-//   let menus;
-//   menu.menuitems.array.forEach(element => {
-//     menus.push(getMenu(element.id));
-//   });
+    allMenuItems.forEach((menuItem) => {
+      getParentmenu(menuItem, parentMenu);
+    });
+    if (parentMenu.menuElements.length === 0) {
+      return [];
+    }
+    fullMenuTree.push([parentMenu]);
 
-// }
+    while (containsChildMenuSets) {
+      lastMenuSet = fullMenuTree[fullMenuTree.length - 1];
 
-// Menu getMenu(menuItemid) {
+      const newChildMenuSet = getMenuSets(lastMenuSet);
 
-//   menuModel _menuModel = new menuModel(menuItemid, []);
-//   const menuitems = menuItemService.queryMenuItems();
-//   menuitems.array.forEach(element => {
-//     if (element.parentMenuItem == menuItemid) {
-//       _menuModel.addMenuItem(element);
+      if (newChildMenuSet.length === 0) {
+        containsChildMenuSets = false;
+      } else {
+        fullMenuTree.push(newChildMenuSet);
+      }
+    }
+  });
 
-//     }
-//   });
-//   return _menuModel;
-// }
+  return fullMenuTree;
+};
+
+module.exports = {
+  getFullMenuSet,
+};

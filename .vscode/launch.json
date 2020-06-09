@@ -10,7 +10,7 @@
         "name": "nodemon",
         "runtimeExecutable": "cross-env NODE_ENV=development nodemon",
         "program": "${workspaceFolder}/src/index.js",
-        "restart": true,
+        "restart": false,
         "console": "integratedTerminal",
         "internalConsoleOptions": "neverOpen",
         "skipFiles": [
