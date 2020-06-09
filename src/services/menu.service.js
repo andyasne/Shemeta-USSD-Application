@@ -1,18 +1,13 @@
-
 /* eslint-disable prefer-destructuring */
 const { Menu } = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
-
 let allMenuItems;
 let allDisplayText;
-
 function buildMenu(menuItemId) {
   const _menu = new Menu(menuItemId);
-
   allMenuItems.forEach((menuItem) => {
     let displayText = {};
-
     if (menuItem.parentMenuItemId !== undefined) {
       if (menuItem.parentMenuItemId.equals(menuItemId)) {
         allDisplayText.forEach((dt) => {
@@ -26,10 +21,8 @@ function buildMenu(menuItemId) {
       }
     }
   });
-
   return _menu;
 }
-
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
@@ -40,19 +33,15 @@ function getChildMenusFromMI(parent, menuSet) {
     });
   }
 }
-
 function getMenuSets(endOfFullMenuTree) {
   const menuSet = [];
   endOfFullMenuTree.forEach((parentMenu) => {
     getChildMenusFromMI(parentMenu, menuSet);
   });
-
   return menuSet;
 }
-
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
-
   if (menuItem.parentMenuItemId === null) {
     allDisplayText.forEach((dt) => {
       if (menuItem.displayText !== undefined) {
@@ -67,17 +56,13 @@ function getParentmenu(menuItem, parentMenu) {
 const getFullMenuSet = async () => {
   const fullMenuTree = [];
   let containsChildMenuSets = true;
-
   const allMenuItemsPromise = menuItemService.getMenuItems();
   const allDisplayTextPromise = displayTextService.getDisplayTexts();
-
   let lastMenuSet = [];
-
   await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
     allMenuItems = values[0];
     allDisplayText = values[1];
     const parentMenu = new Menu('0');
-
     allMenuItems.forEach((menuItem) => {
       getParentmenu(menuItem, parentMenu);
     });
@@ -85,12 +70,9 @@ const getFullMenuSet = async () => {
       return [];
     }
     fullMenuTree.push([parentMenu]);
-
     while (containsChildMenuSets) {
       lastMenuSet = fullMenuTree[fullMenuTree.length - 1];
-
       const newChildMenuSet = getMenuSets(lastMenuSet);
-
       if (newChildMenuSet.length === 0) {
         containsChildMenuSets = false;
       } else {
@@ -98,9 +80,9 @@ const getFullMenuSet = async () => {
       }
     }
   });
-
   return fullMenuTree;
 };
+
 
 module.exports = {
   getFullMenuSet,

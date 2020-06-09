@@ -1,14 +1,12 @@
 // const menuItem = require('./menuItem.model');
-
 class menuModel {
-  constructor(id ) {
+  constructor(id) {
     this._id = id;
-     this.menuElements=[];
+    this.menuElements = [];
   }
 
   addMenuElements(menuItem, displayTexts) {
-    this.menuElements.push({menuItem,displayTexts});
-
+    this.menuElements.push({ menuItem, displayTexts });
   }
 
   getText() {
@@ -16,5 +14,4 @@ class menuModel {
     return this._msg;
   }
 }
-
 module.exports = menuModel;
