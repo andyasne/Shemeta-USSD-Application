@@ -3,13 +3,15 @@
 class menuModel {
   constructor(id, menuItems, displayTexts) {
     this._id = id;
-    this._menuItems = menuItems;
-    this._displayTexts = displayTexts;
+
   }
 
+  let menuItems;
+  let displayTexts;
+
   addMenuItem(menuItem, displayTexts) {
-    this._menuItems.push(menuItem);
-    this._displayTexts.push(displayTexts);
+    this.menuItems.push(menuItem);
+    this.displayTexts.push(displayTexts);
   }
 
   getText() {

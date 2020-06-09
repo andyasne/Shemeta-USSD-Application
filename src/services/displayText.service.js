@@ -25,7 +25,10 @@ const queryDisplayTexts = async (filter, options) => {
   const displayTexts = await DisplayText.paginate(filter, options);
   return displayTexts;
 };
-
+const getDisplayTexts = async () => {
+  const displayTexts = await DisplayText.find({});
+  return displayTexts;
+};
 /**
  * Get displayText by id
  * @param {ObjectId} id
@@ -69,6 +72,7 @@ module.exports = {
   createDisplayText,
   queryDisplayTexts,
   getDisplayTextById,
+  getDisplayTexts,
   updateDisplayTextById,
   deleteDisplayTextById,
 };
