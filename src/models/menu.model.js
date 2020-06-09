@@ -3,11 +3,12 @@
 class menuModel {
   constructor(id ) {
     this._id = id;
-    this.menuElements=[];
+     this.menuElements=[];
   }
 
   addMenuElements(menuItem, displayTexts) {
     this.menuElements.push({menuItem,displayTexts});
+
   }
 
   getText() {
