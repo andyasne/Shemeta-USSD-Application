@@ -2,6 +2,7 @@
 const { Menu } = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
+
 let allMenuItems;
 let allDisplayText;
 function buildMenu(menuItemId) {
@@ -83,7 +84,51 @@ const getFullMenuSet = async () => {
   return fullMenuTree;
 };
 
+const saveFullMenuSet = async (fullMenuSet) => {
+  if (fullMenuSet === undefined || fullMenuSet.length === 0) {
+    return [];
+  }
+  let dtPromise;
+  let mePromise;
+  async.whilst(
+    function test(cb) {
+      cb(null, fullMenuSet.length > 0);
+    },
+    function iter(callback) {
+      const menuElement = fullMenuSet.pop();
+
+      menuElement.forEach((me) => {
+        if (me.displayTexts.id === null) {
+          // save
+          dtPromise = displayTextService.createDisplayText(me.displayText);
+        } else {
+          dtPromise = displayTextService.updateDisplayTextById(me.displayText.id, me.displayText);
+        }
+
+        dtPromise.then((dtvalue) => {
+          me.displayText = new Object(dtvalue.id);
+          if (me.id === null) {
+            mePromise=   menuItemService.createMenuItem(me);
+          }else{
+
+            mePromise=   menuItemService.updateMenuItemById(me.id,me);
+          }
+
+
+        });
+
+      });
+
+    },
+    function (err, n) {
+      if (n) {
+        return getFullMenuSet();
+      }
+    }
+  );
+};
 
 module.exports = {
   getFullMenuSet,
+  saveFullMenuSet
 };
