@@ -7,8 +7,11 @@ const getFullMenuSet = catchAsync(async (req, res) => {
   res.status(httpStatus.FOUND).send(menu);
 });
 const saveFullMenuSet = catchAsync(async (req, res) => {
-  const menuSet = await menuService.saveFullMenuSet(req.body);
-  res.status(httpStatus.CREATED).send(menuSet);
+  const menuSet =  menuService.saveFullMenuSet(req.body);
+  menuSet.then((ms)=>{
+    getFullMenuSet(req,res);
+
+  });
 });
 
 module.exports = {

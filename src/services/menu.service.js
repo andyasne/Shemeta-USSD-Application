@@ -92,48 +92,50 @@ const saveFullMenuSet = async (fullMenuSet) => {
   if (fullMenuSet === undefined || fullMenuSet.length === 0) {
     return [];
   }
-  // let dtPromise;
-  // let mePromise;
-  // async.whilst(
-  //   function test(callback) {
-  //     callback(null, fullMenuSet.length > 0);
-  //   },
-  //   function iter(callback) {
-  //     const menu = fullMenuSet.pop();
+  let dtPromise;
+  let mePromise;
+  async.whilst(
+    function test(callback) {
+      callback(null, fullMenuSet.length > 0);
+    },
+    function iter(callback) {
+      const menu = fullMenuSet.pop();
 
-  //     menu.forEach((mn) => {
-  //       mn.menuElements.forEach((me) => {
-  //         if (me.displayTexts._id === undefined) {
-  //           // save
-  //           dtPromise = displayTextService.createDisplayText(me.displayTexts);
-  //         } else {
-  //           dtPromise = displayTextService.updateDisplayTextById(me.displayTexts._id, me.displayTexts);
-  //         }
+      menu.forEach((mn) => {
+        mn.menuElements.forEach((me) => {
+          if (me.displayTexts._id === undefined) {
+            // save
+            dtPromise = displayTextService.createDisplayText(me.displayTexts);
+          } else {
+            dtPromise = displayTextService.updateDisplayTextById(me.displayTexts._id, me.displayTexts);
+          }
 
-  //         dtPromise.then((dtvalue) => {
-  //           me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
-  //           if (me.menuItem._id === undefined) {
-  //             mePromise = menuItemService.createMenuItem(me.menuItem);
-  //           } else {
-  //             mePromise = menuItemService.updateMenuItemById(me.menuItem._id, me.menuItem);
-  //           }
-  //         });
-  //       });
-  //     });
+          dtPromise.then((dtvalue) => {
+            me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
+            if (me.menuItem._id === undefined) {
+              mePromise = menuItemService.createMenuItem(me.menuItem);
+            } else {
+              mePromise = menuItemService.updateMenuItemById(me.menuItem._id, me.menuItem);
+            }
+          });
+        });
+      });
 
-  //     // Promise.all([dtPromise, mePromise]).then((values) => {
-  //     //   callback(null, fullMenuSet);
-  //     // });
-  //   },
-  //   function (err, n) {
-  //     if (n) {
-  //       return getFullMenuSet();
-  //     }
-  //   }
-  // );
+     Promise.all([dtPromise, mePromise]).then((values) => {
+        callback(null, fullMenuSet);
+      });
+    },
+    function (err, n) {
+      if (n) {
+              return dtPromise;
+        }
+    }
+  );
+
+
 };
 
 module.exports = {
   getFullMenuSet,
-  saveFullMenuSet
+  saveFullMenuSet,
 };
