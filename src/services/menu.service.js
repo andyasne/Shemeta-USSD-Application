@@ -2,10 +2,12 @@
 /* eslint-disable no-unused-vars */
 
 const async = require('async');
+const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const { Menu } = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
+const ApiError = require('../utils/ApiError');
 
 let allMenuItems;
 let allDisplayText;
@@ -94,13 +96,13 @@ const saveFullMenuSet = async (fullMenuSet) => {
   }
   let dtPromise;
   let mePromise;
+
   async.whilst(
     function test(callback) {
-      callback(null, fullMenuSet.length > 0);
+          callback(null, fullMenuSet.length > 0);
     },
     function iter(callback) {
       const menu = fullMenuSet.pop();
-
       menu.forEach((mn) => {
         mn.menuElements.forEach((me) => {
           if (me.displayTexts._id === undefined) {
@@ -125,9 +127,9 @@ const saveFullMenuSet = async (fullMenuSet) => {
         callback(null, fullMenuSet);
       });
     },
-    function (err, n) {
-      if (n) {
-              return dtPromise;
+    function (err, fullMenuSet) {
+             if(err){
+          throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
         }
     }
   );
