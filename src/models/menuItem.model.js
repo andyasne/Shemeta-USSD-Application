@@ -9,40 +9,41 @@ const menuItemSchema = new Schema({
     required: true,
     ref: 'displayText',
   },
+  code: {
+    type: String,
+  },
+  parentCode: {
+    type: String,
+  },
   selector: {
     type: String,
-    required: true,
   },
   order: {
     type: Number,
-    required: true,
   },
   menuType: {
     type: String,
-    required: true,
+    required: false,
   },
   questionDataType: {
     type: String,
-    required: true,
+    required: false,
   },
   loadUserData: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   readOnly: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   additionalAttributes: {
     type: String,
   },
-  parentMenuItemId: {
-    type: Schema.Types.ObjectId,
-    ref: 'menuItem',
-  },
+
   exit: {
     type: Boolean,
-    required: true,
+    required: false,
     default: false,
   },
   redirect: {

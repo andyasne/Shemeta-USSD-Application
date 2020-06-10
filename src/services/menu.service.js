@@ -1,16 +1,20 @@
 /* eslint-disable prefer-destructuring */
+/* eslint-disable no-unused-vars */
+
+const async = require('async');
+const mongoose = require('mongoose');
 const { Menu } = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
 
 let allMenuItems;
 let allDisplayText;
-function buildMenu(menuItemId) {
-  const _menu = new Menu(menuItemId);
+function buildMenu(menuCode) {
+  const _menu = new Menu(menuCode);
   allMenuItems.forEach((menuItem) => {
     let displayText = {};
-    if (menuItem.parentMenuItemId !== undefined) {
-      if (menuItem.parentMenuItemId.equals(menuItemId)) {
+    if (menuItem.parentCode !== undefined) {
+      if (menuItem.parentCode === menuCode) {
         allDisplayText.forEach((dt) => {
           if (menuItem.displayText !== undefined) {
             if (menuItem.displayText.equals(dt._id)) {
@@ -27,7 +31,7 @@ function buildMenu(menuItemId) {
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
-      const newMenu = buildMenu(menuElement.menuItem.id);
+      const newMenu = buildMenu(menuElement.menuItem.code);
       if (newMenu.menuElements.length !== 0) {
         menuSet.push(newMenu);
       }
@@ -43,7 +47,7 @@ function getMenuSets(endOfFullMenuTree) {
 }
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
-  if (menuItem.parentMenuItemId === null) {
+  if (menuItem.parentCode === undefined || menuItem.parentCode === null || menuItem.parentCode === '') {
     allDisplayText.forEach((dt) => {
       if (menuItem.displayText !== undefined) {
         if (menuItem.displayText.equals(dt._id)) {
@@ -51,8 +55,8 @@ function getParentmenu(menuItem, parentMenu) {
         }
       }
     });
+    parentMenu.addMenuElements(menuItem, displayText);
   }
-  parentMenu.addMenuElements(menuItem, displayText);
 }
 const getFullMenuSet = async () => {
   const fullMenuTree = [];
@@ -88,44 +92,45 @@ const saveFullMenuSet = async (fullMenuSet) => {
   if (fullMenuSet === undefined || fullMenuSet.length === 0) {
     return [];
   }
-  let dtPromise;
-  let mePromise;
-  async.whilst(
-    function test(cb) {
-      cb(null, fullMenuSet.length > 0);
-    },
-    function iter(callback) {
-      const menuElement = fullMenuSet.pop();
+  // let dtPromise;
+  // let mePromise;
+  // async.whilst(
+  //   function test(callback) {
+  //     callback(null, fullMenuSet.length > 0);
+  //   },
+  //   function iter(callback) {
+  //     const menu = fullMenuSet.pop();
 
-      menuElement.forEach((me) => {
-        if (me.displayTexts.id === null) {
-          // save
-          dtPromise = displayTextService.createDisplayText(me.displayText);
-        } else {
-          dtPromise = displayTextService.updateDisplayTextById(me.displayText.id, me.displayText);
-        }
+  //     menu.forEach((mn) => {
+  //       mn.menuElements.forEach((me) => {
+  //         if (me.displayTexts._id === undefined) {
+  //           // save
+  //           dtPromise = displayTextService.createDisplayText(me.displayTexts);
+  //         } else {
+  //           dtPromise = displayTextService.updateDisplayTextById(me.displayTexts._id, me.displayTexts);
+  //         }
 
-        dtPromise.then((dtvalue) => {
-          me.displayText = new Object(dtvalue.id);
-          if (me.id === null) {
-            mePromise=   menuItemService.createMenuItem(me);
-          }else{
+  //         dtPromise.then((dtvalue) => {
+  //           me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
+  //           if (me.menuItem._id === undefined) {
+  //             mePromise = menuItemService.createMenuItem(me.menuItem);
+  //           } else {
+  //             mePromise = menuItemService.updateMenuItemById(me.menuItem._id, me.menuItem);
+  //           }
+  //         });
+  //       });
+  //     });
 
-            mePromise=   menuItemService.updateMenuItemById(me.id,me);
-          }
-
-
-        });
-
-      });
-
-    },
-    function (err, n) {
-      if (n) {
-        return getFullMenuSet();
-      }
-    }
-  );
+  //     // Promise.all([dtPromise, mePromise]).then((values) => {
+  //     //   callback(null, fullMenuSet);
+  //     // });
+  //   },
+  //   function (err, n) {
+  //     if (n) {
+  //       return getFullMenuSet();
+  //     }
+  //   }
+  // );
 };
 
 module.exports = {

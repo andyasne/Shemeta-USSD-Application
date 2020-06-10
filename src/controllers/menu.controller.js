@@ -13,5 +13,5 @@ const saveFullMenuSet = catchAsync(async (req, res) => {
 
 module.exports = {
   getFullMenuSet,
-  saveFullMenuSet
+  saveFullMenuSet,
 };
