@@ -99,7 +99,7 @@ const saveFullMenuSet = async (fullMenuSet) => {
 
   async.whilst(
     function test(callback) {
-          callback(null, fullMenuSet.length > 0);
+      callback(null, fullMenuSet.length > 0);
     },
     function iter(callback) {
       const menu = fullMenuSet.pop();
@@ -113,6 +113,7 @@ const saveFullMenuSet = async (fullMenuSet) => {
           }
 
           dtPromise.then((dtvalue) => {
+            // eslint-disable-next-line no-param-reassign
             me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
             if (me.menuItem._id === undefined) {
               mePromise = menuItemService.createMenuItem(me.menuItem);
@@ -123,18 +124,16 @@ const saveFullMenuSet = async (fullMenuSet) => {
         });
       });
 
-     Promise.all([dtPromise, mePromise]).then((values) => {
+      Promise.all([dtPromise, mePromise]).then((values) => {
         callback(null, fullMenuSet);
       });
     },
-    function (err, fullMenuSet) {
-             if(err){
-          throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
-        }
+    function (err) {
+      if (err) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
+      }
     }
   );
-
-
 };
 
 module.exports = {

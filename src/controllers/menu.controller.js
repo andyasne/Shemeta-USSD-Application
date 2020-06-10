@@ -7,7 +7,7 @@ const getFullMenuSet = catchAsync(async (req, res) => {
   res.status(httpStatus.FOUND).send(menu);
 });
 const saveFullMenuSet = catchAsync(async (req, res) => {
-  const menuSet = await menuService.saveFullMenuSet(req.body);
+  await menuService.saveFullMenuSet(req.body);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
