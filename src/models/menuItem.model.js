@@ -47,8 +47,7 @@ const menuItemSchema = new Schema({
     default: false,
   },
   redirect: {
-    type: Schema.Types.ObjectId,
-    ref: 'menuItem',
+    type: String,
   },
   api: {
     type: String,
