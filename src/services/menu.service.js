@@ -136,7 +136,12 @@ const saveFullMenuSet = async (fullMenuSet) => {
   );
 };
 
+const getMenu = async (sessionId, phoneNumber, menuItemId) => {
+  // get the session : using the sessionId and Phone number
+};
+
 module.exports = {
   getFullMenuSet,
   saveFullMenuSet,
+  getMenu,
 };

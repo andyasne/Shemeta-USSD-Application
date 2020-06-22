@@ -11,6 +11,7 @@ const menuItemSchema = new Schema({
   },
   code: {
     type: String,
+    required: true,
   },
   parentCode: {
     type: String,
