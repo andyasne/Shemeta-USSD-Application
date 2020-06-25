@@ -7,6 +7,10 @@ const displayTextRoute = require('./displayText.route');
 const menuItemRoute = require('./menuItem.route');
 const menuRoute = require('./menu.route');
 
+const userDataRoute = require('./userData.route');
+const userSessionRoute = require('./userSession.route');
+const ussdUserRoute = require('./ussdUser.route');
+
 const router = express.Router();
 
 router.use('/auth', authRoute);
@@ -16,5 +20,9 @@ router.use('/docs', docsRoute);
 router.use('/displayText', displayTextRoute);
 router.use('/menuItem', menuItemRoute);
 router.use('/menu', menuRoute);
+router.use('/userData', userDataRoute);
+router.use('/userSession', userSessionRoute);
+router.use('/ussdUser', ussdUserRoute);
+
 
 module.exports = router;

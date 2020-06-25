@@ -136,8 +136,23 @@ const saveFullMenuSet = async (fullMenuSet) => {
   );
 };
 
-const getMenu = async (sessionId, phoneNumber, menuItemId) => {
+const getMenu = async (sessionId, phoneNumber, selector) => {
   // get the session : using the sessionId and Phone number
+
+  //get MenuItem List
+
+
+  //from the selector find the menuItem
+
+
+
+
+
+  //get menu by calling the menu Item
+   buildMenu(menuItemId);
+
+
+   //Add to Session
 };
 
 module.exports = {

@@ -6,5 +6,5 @@ module.exports.DisplayText = require('./displayText.model');
 module.exports.USSDConfig = require('./ussdConfig.model');
 
 module.exports.UssdUser = require('./ussdUser.model');
-module.exports.userSession = require('./userSession.model');
-module.exports.userData = require('./userData.model');
+module.exports.UserSession = require('./userSession.model');
+module.exports.UserData = require('./userData.model');

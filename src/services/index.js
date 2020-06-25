@@ -6,3 +6,7 @@ module.exports.menuItemService = require('./menuItem.service');
 module.exports.menuService = require('./menu.service');
 module.exports.displayTextService = require('./displayText.service');
 module.exports.ussdConfigService = require('./ussdConfig.service');
+
+module.exports.userSession = require('./userSession.service');
+module.exports.userData = require('./userData.service');
+module.exports.ussdUser = require('./ussdUser.service');
