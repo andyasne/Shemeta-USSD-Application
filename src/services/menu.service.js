@@ -4,10 +4,15 @@
 const async = require('async');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
-const { Menu } = require('../models');
+const { Menu  } = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
 const ApiError = require('../utils/ApiError');
+const userDataService = require('./userData.service');
+const userSessionService = require('./userSession.service');
+const ussdUserService = require('./ussdUser.service');
+
+
 
 let allMenuItems;
 let allDisplayText;
@@ -137,22 +142,25 @@ const saveFullMenuSet = async (fullMenuSet) => {
 };
 
 const getMenu = async (sessionId, phoneNumber, selector) => {
+
+
   // get the session : using the sessionId and Phone number
 
-  //get MenuItem List
+  userSession currentSession = userSessionService.getLatestSession(phoneNumber,sessionId);
 
+   let userData = userDataService.getUserDataById(currentSession.userData);
 
-  //from the selector find the menuItem
+   let nextMenuItemId=getNextMenuItemId(userData.lastMenuItemId,selector);
 
+   let nextMenu=buildMenu(nextMenuItemId);
 
+   updateUserData(userData,nextMenu,selector);
 
-
-
-  //get menu by calling the menu Item
-   buildMenu(menuItemId);
-
-
-   //Add to Session
+   return nextMenu;
+  // from the selector find the menuItem
+  // get menu by calling the menu Item
+  // buildMenu(menuItemId);
+  // Add to Session
 };
 
 module.exports = {

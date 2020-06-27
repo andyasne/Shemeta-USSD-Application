@@ -6,7 +6,13 @@ const userDataSchema = new Schema({
     type: Map,
     required: true,
   },
+  lastMenuItemId: {
+    type: String,
+    required: true,
+  },
 });
+
+
 
 const UserData = mongoose.model('UserData', userDataSchema);
 

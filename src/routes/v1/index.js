@@ -24,5 +24,4 @@ router.use('/userData', userDataRoute);
 router.use('/userSession', userSessionRoute);
 router.use('/ussdUser', ussdUserRoute);
 
-
 module.exports = router;

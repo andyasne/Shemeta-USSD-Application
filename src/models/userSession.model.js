@@ -17,7 +17,7 @@ const userSessionSchema = mongoose.Schema({
   user: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'user',
+    ref: 'ussdUser',
   },
   userData: {
     type: Schema.Types.ObjectId,
