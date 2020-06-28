@@ -12,8 +12,8 @@ const saveFullMenuSet = catchAsync(async (req, res) => {
 });
 
 const getMenu = catchAsync(async (req, res) => {
-  await menuService.getMenu(req.params.sessionId, req.params.phoneNumber, req.params.menuItemId);
-  res.status(httpStatus.NO_CONTENT).send();
+  const nextMenu = await menuService.getMenu(req.params.sessionId, req.params.phoneNumber, req.params.selector);
+  res.status(httpStatus.FOUND).send(nextMenu);
 });
 
 module.exports = {

@@ -4,7 +4,7 @@
 const async = require('async');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
-const Menu = require('../models');
+const Menu = require('../models/menu.model');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
 const ApiError = require('../utils/ApiError');
@@ -15,40 +15,43 @@ const ussdUserService = require('./ussdUser.service');
 let allMenuItems;
 let allDisplayText;
 
-async function buildMenu(menuCode) {
-  const allMenuItemsPromise = menuItemService.getMenuItems();
-  const allDisplayTextPromise = displayTextService.getDisplayTexts();
+  function buildMenu(menuCode) {
+  // const allMenuItemsPromise = menuItemService.getMenuItems();
+  // const allDisplayTextPromise = displayTextService.getDisplayTexts();
   const lastMenuSet = [];
   const _menu = new Menu(menuCode);
-  await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
-    allMenuItems = values[0];
-    allDisplayText = values[1];
-    allMenuItems.forEach((menuItem) => {
-      let displayText = {};
-      if (menuItem.parentCode !== undefined) {
-        if (menuItem.parentCode === menuCode) {
-          allDisplayText.forEach((dt) => {
-            if (menuItem.displayText !== undefined) {
-              if (menuItem.displayText.equals(dt._id)) {
-                displayText = dt;
-              }
+  allMenuItems.forEach((menuItem) => {
+    let displayText = {};
+    if (menuItem.parentCode !== undefined) {
+      if (menuItem.parentCode === menuCode) {
+        allDisplayText.forEach((dt) => {
+          if (menuItem.displayText !== undefined) {
+            if (menuItem.displayText.equals(dt._id)) {
+              displayText = dt;
             }
-          });
-          _menu.addMenuElements(menuItem, displayText);
-        }
+          }
+        });
+        _menu.addMenuElements(menuItem, displayText);
       }
-    });
-    return _menu;
+    }
   });
-}
+   return _menu;
+  // await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
+  //   allMenuItems = values[0];
+  //   allDisplayText = values[1];
 
+
+  // });
+}
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
-      const newMenu = buildMenu(menuElement.menuItem.code);
+      if (menuElement.menuItem.code) {
+      let newMenu = buildMenu(menuElement.menuItem.code);
       if (newMenu.menuElements.length !== 0) {
         menuSet.push(newMenu);
       }
+    }
     });
   }
 }
@@ -189,10 +192,7 @@ const getMenu = async (sessionId, phoneNumber, selector) => {
   updateData(currentSession, selector, userData, nextMenu);
 
   return nextMenu;
-  // from the selector find the menuItem
-  // get menu by calling the menu Item
-  // buildMenu(menuItemId);
-  // Add to Session
+
 };
 
 module.exports = {
