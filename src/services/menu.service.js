@@ -10,7 +10,7 @@ const ApiError = require('../utils/ApiError');
 const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
 
-let allMenuItems;
+let allMenuItems; // Testing
 let allDisplayText;
 function buildMenu(menuCode) {
   const _menu = new Menu(menuCode);
