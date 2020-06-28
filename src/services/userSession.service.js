@@ -74,7 +74,8 @@ const getLastSession = async (phoneNumber, _sessionId) => {
   const user = await UssdUser.getUssdUserByPhoneNumber(phoneNumber);
 
   if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    //  throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    return undefined;
   }
   // TODO:- Validate phone number and sessionId
   const query = {

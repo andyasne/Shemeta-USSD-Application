@@ -9,6 +9,7 @@ const displayTextService = require('./displayText.service');
 const ApiError = require('../utils/ApiError');
 const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
+const ussdUserService = require('./ussdUser.service');
 
 let allMenuItems; // Testing
 let allDisplayText;
@@ -77,7 +78,7 @@ function getMenuSets(endOfFullMenuTree) {
 }
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
-  if (menuItem.parentCode === undefined || menuItem.parentCode === null || menuItem.parentCode === '') {
+  if (menuItem.parentCode === '0') {
     allDisplayText.forEach((dt) => {
       if (menuItem.displayText !== undefined) {
         if (menuItem.displayText.equals(dt._id)) {
@@ -165,30 +166,70 @@ const getNextMenuCode = async (menuItemCode, _selector) => {
     selector: _selector,
   };
   const mi = await menuItemService.queryMenuItems(query, null);
+  if (mi.length === 0) {
+    return '0';
+  }
   return mi[0].code;
 };
-function isEndSelector() {
-  // TODO
-  return false;
-}
-async function updateData(currentSession, selector, userData, nextMenu) {
+
+async function updateData(currentSession, selector, userData, nextMenu, _sessionId) {
   // TODO update currentSession end date if selector is end
-  if (isEndSelector(selector)) {
-    currentSession.endDate = new Date();
-    userSessionService.updateUserSessionById(currentSession.id, currentSession);
-  }
+  // if (isEndSelector(selector)) {
+  // currentSession.endDate = new Date();
+  currentSession.sessionId = _sessionId;
+  userSessionService.updateUserSessionById(currentSession.id, currentSession);
+  // }
   userData.lastMenuCode = nextMenu._id;
   userData.data.set(nextMenu._id, selector);
   userDataService.updateUserDataById(userData.id, userData);
 }
-const getMenu = async (sessionId, phoneNumber, selector) => {
+const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   // get the session : using the sessionId and Phone number
-  const currentSession = await userSessionService.getLastSession(phoneNumber, sessionId);
+  const currentSession = await userSessionService.getLastSession(_phoneNumber, _sessionId);
+  if (!currentSession) {
+    // Create New UserSession
+
+    const ussdUserJson = {
+      phoneNumber: _phoneNumber,
+      fullName: '',
+      defaultLanguage: 'en',
+      registrationDate: new Date().toString(),
+    };
+
+    const ussdUser = await ussdUserService.createUssdUser(ussdUserJson);
+    const userDataJ = {
+      lastMenuCode: '',
+      data: {},
+    };
+
+    const userData = await userDataService.createUserData(userDataJ);
+
+    const userSessionJ = {
+      startDate: new Date().toString(),
+      sessionId: '',
+      user: ussdUser.id.toString(),
+      userData: userData.id.toString(),
+    };
+    const userSession = await userSessionService.createUserSession(userSessionJ);
+
+    const allMenuItemsPromise = menuItemService.getMenuItems();
+    const allDisplayTextPromise = displayTextService.getDisplayTexts();
+    const values = await Promise.all([allMenuItemsPromise, allDisplayTextPromise]);
+    allMenuItems = values[0];
+    allDisplayText = values[1];
+    const nextMenu = new Menu('0');
+    allMenuItems.forEach((menuItem) => {
+      getParentmenu(menuItem, nextMenu);
+    });
+
+    updateData(userSession, _selector, userData, nextMenu, _sessionId);
+    return nextMenu;
+  }
   const userData = await userDataService.getUserDataById(currentSession.userData.toString());
   // TODO if(userData.lastMenuCode==undefined , show register user
-  const nextMenuCode = await getNextMenuCode(userData.lastMenuCode, selector);
+  const nextMenuCode = await getNextMenuCode(userData.lastMenuCode, _selector);
   const nextMenu = await buildMenuAsync(nextMenuCode);
-  updateData(currentSession, selector, userData, nextMenu);
+  updateData(currentSession, _selector, userData, nextMenu, _sessionId);
   return nextMenu;
 };
 module.exports = {
