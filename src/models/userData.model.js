@@ -6,7 +6,7 @@ const userDataSchema = new Schema({
     type: Map,
     required: true,
   },
-  lastMenuItemId: {
+  lastMenuCode: {
     type: String,
     required: true,
   },

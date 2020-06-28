@@ -4,7 +4,7 @@
 const async = require('async');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
-const { Menu  } = require('../models');
+const Menu = require('../models');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
 const ApiError = require('../utils/ApiError');
@@ -12,29 +12,36 @@ const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
 const ussdUserService = require('./ussdUser.service');
 
-
-
 let allMenuItems;
 let allDisplayText;
-function buildMenu(menuCode) {
+
+async function buildMenu(menuCode) {
+  const allMenuItemsPromise = menuItemService.getMenuItems();
+  const allDisplayTextPromise = displayTextService.getDisplayTexts();
+  const lastMenuSet = [];
   const _menu = new Menu(menuCode);
-  allMenuItems.forEach((menuItem) => {
-    let displayText = {};
-    if (menuItem.parentCode !== undefined) {
-      if (menuItem.parentCode === menuCode) {
-        allDisplayText.forEach((dt) => {
-          if (menuItem.displayText !== undefined) {
-            if (menuItem.displayText.equals(dt._id)) {
-              displayText = dt;
+  await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
+    allMenuItems = values[0];
+    allDisplayText = values[1];
+    allMenuItems.forEach((menuItem) => {
+      let displayText = {};
+      if (menuItem.parentCode !== undefined) {
+        if (menuItem.parentCode === menuCode) {
+          allDisplayText.forEach((dt) => {
+            if (menuItem.displayText !== undefined) {
+              if (menuItem.displayText.equals(dt._id)) {
+                displayText = dt;
+              }
             }
-          }
-        });
-        _menu.addMenuElements(menuItem, displayText);
+          });
+          _menu.addMenuElements(menuItem, displayText);
+        }
       }
-    }
+    });
+    return _menu;
   });
-  return _menu;
 }
+
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
@@ -45,6 +52,7 @@ function getChildMenusFromMI(parent, menuSet) {
     });
   }
 }
+
 function getMenuSets(endOfFullMenuTree) {
   const menuSet = [];
   endOfFullMenuTree.forEach((parentMenu) => {
@@ -52,6 +60,7 @@ function getMenuSets(endOfFullMenuTree) {
   });
   return menuSet;
 }
+
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
   if (menuItem.parentCode === undefined || menuItem.parentCode === null || menuItem.parentCode === '') {
@@ -141,22 +150,45 @@ const saveFullMenuSet = async (fullMenuSet) => {
   );
 };
 
+const getNextMenuCode = async (menuItemCode, selector) => {
+  const query = {
+    parentCode: menuItemCode,
+    selector,
+  };
+
+  const mi = await menuItemService.queryMenuItems(query, null);
+  return mi;
+};
+function isEndSelector(selector) {
+  //TODO
+  return false;
+}
+const updateData = async (currentSession, selector, userData, nextMenu) => {
+  // TODO update currentSession end date if selector is end
+  if (isEndSelector(selector)) {
+    currentSession.endDate = new Date();
+    userSessionService.updateUserSessionById(currentSession.id, currentSession);
+  }
+
+  userData.lastMenuCode = nextMenu.code;
+  userData.data.set(nextMenu.code, selector);
+  userDataService.updateUserDataById(userData.id, userData);
+};
+
 const getMenu = async (sessionId, phoneNumber, selector) => {
-
-
   // get the session : using the sessionId and Phone number
 
-  userSession currentSession = userSessionService.getLatestSession(phoneNumber,sessionId);
+  const currentSession = userSessionService.getLatestSession(phoneNumber, sessionId);
 
-   let userData = userDataService.getUserDataById(currentSession.userData);
+  const userData = userDataService.getUserDataById(currentSession.userData);
 
-   let nextMenuItemId=getNextMenuItemId(userData.lastMenuItemId,selector);
+  const nextMenuCode = getNextMenuCode(userData.lastMenuCode, selector);
 
-   let nextMenu=buildMenu(nextMenuItemId);
+  const nextMenu = buildMenu(nextMenuCode);
 
-   updateUserData(userData,nextMenu,selector);
+  updateData(currentSession, selector, userData, nextMenu);
 
-   return nextMenu;
+  return nextMenu;
   // from the selector find the menuItem
   // get menu by calling the menu Item
   // buildMenu(menuItemId);
@@ -168,3 +200,4 @@ module.exports = {
   saveFullMenuSet,
   getMenu,
 };
+

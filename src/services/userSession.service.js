@@ -1,6 +1,9 @@
 const httpStatus = require('http-status');
-const { UserSession } = require('../models');
+const {
+  UserSession
+} = require('../models');
 const ApiError = require('../utils/ApiError');
+const UssdUser = require('./ussdUser.service');
 
 /**
  * Create a userSession
@@ -68,6 +71,23 @@ const deleteUserSessionById = async (userSessionId) => {
   return userSession;
 };
 
+const getLastSession = async (phoneNumber, _sessionId) => {
+  //Get User
+  let user = await UssdUser.getUssdUserByPhoneNumber(phoneNumber);
+
+  if (!user){
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+    // TODO:- Validate phone number and sessionId
+  let query = {
+    sessionId: _sessionId,
+    user: user.id,
+    endDate: null,
+  };
+  const userSession = await UserSession.findOne(query);
+  return userSession;
+};
+
 module.exports = {
   createUserSession,
   queryUserSessions,
@@ -75,4 +95,5 @@ module.exports = {
   getUserSessions,
   updateUserSessionById,
   deleteUserSessionById,
+  getLastSession,
 };
