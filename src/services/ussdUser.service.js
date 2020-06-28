@@ -68,9 +68,9 @@ const deleteUssdUserById = async (ussdUserId) => {
   return ussdUser;
 };
 const getUssdUserByPhoneNumber = async (_phoneNumber) => {
-  let q = { phoneNumber: _phoneNumber  };
+  const q = { phoneNumber: _phoneNumber };
   return UssdUser.findOne(q);
-  };
+};
 
 module.exports = {
   createUssdUser,

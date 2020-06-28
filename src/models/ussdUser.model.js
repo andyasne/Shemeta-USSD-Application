@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const ussdUserSchema = mongoose.Schema({
   phoneNumber: {
@@ -21,6 +22,9 @@ const ussdUserSchema = mongoose.Schema({
     default: true,
   },
 });
+ussdUserSchema.plugin(toJSON);
+ussdUserSchema.plugin(paginate);
+
 const UssdUser = mongoose.model('UssdUser', ussdUserSchema);
 
 module.exports = UssdUser;

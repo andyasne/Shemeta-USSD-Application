@@ -12,7 +12,7 @@ const saveFullMenuSet = catchAsync(async (req, res) => {
 });
 
 const getMenu = catchAsync(async (req, res) => {
-  const nextMenu = await menuService.getMenu(req.params.sessionId, req.params.phoneNumber, req.params.selector);
+  const nextMenu = await menuService.getMenu(req.query.sessionId, req.query.phoneNumber, req.query.selector);
   res.status(httpStatus.FOUND).send(nextMenu);
 });
 

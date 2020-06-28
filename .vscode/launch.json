@@ -10,12 +10,28 @@
         "name": "nodemon",
         "runtimeExecutable": "cross-env NODE_ENV=development nodemon",
         "program": "${workspaceFolder}/src/index.js",
-        "restart": false,
+        "restart": true,
         "console": "integratedTerminal",
         "internalConsoleOptions": "neverOpen",
         "skipFiles": [
           "<node_internals>/**"
         ]
-      }
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "nodemon 1",
+        "runtimeExecutable": "${workspaceFolder}/node_modules/nodemon/bin/nodemon.js",
+        "program": "${workspaceFolder}/src/index.js",
+        "restart": true,
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+    },{
+      "type": "node",
+      "request": "attach",
+      "name": "Attach",
+      "port": 9229,
+      "restart": true
+    }
     ]
 }

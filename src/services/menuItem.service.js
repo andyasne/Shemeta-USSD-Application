@@ -15,14 +15,10 @@ const createMenuItem = async (menuItemBody) => {
 /**
  * Query for menuItems
  * @param {Object} filter - Mongo filter
- * @param {Object} options - Query options
- * @param {string} [options.sortBy] - Sort option in the format: sortField:(desc|asc)
- * @param {number} [options.limit] - Maximum number of results per page (default = 10)
- * @param {number} [options.page] - Current page (default = 1)
  * @returns {Promise<QueryResult>}
  */
-const queryMenuItems = async (filter, options) => {
-  const menuItems = await MenuItem.paginate(filter, options);
+const queryMenuItems = async (filter) => {
+  const menuItems = await MenuItem.find(filter);
   return menuItems;
 };
 const getMenuItems = async () => {

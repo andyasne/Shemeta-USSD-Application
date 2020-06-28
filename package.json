@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "pm2 start ecosystem.config.json --no-daemon",
-    "dev": "cross-env NODE_ENV=development nodemon src/index.js",
+    "dev": "cross-env NODE_ENV=development nodemon --inspect-brk  src/index.js",
     "test": "jest -i",
     "test:watch": "jest -i --watchAll",
     "coverage": "jest -i --coverage",
@@ -88,7 +88,7 @@
     "jest": "^26.0.1",
     "lint-staged": "^10.0.7",
     "node-mocks-http": "^1.8.0",
-    "nodemon": "^2.0.0",
+    "nodemon": "^2.0.4",
     "prettier": "^2.0.5",
     "supertest": "^4.0.2"
   }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const { Schema } = mongoose;
 const userSessionSchema = mongoose.Schema({
@@ -8,11 +9,9 @@ const userSessionSchema = mongoose.Schema({
   },
   endDate: {
     type: Date,
-    required: true,
   },
   sessionId: {
     type: String,
-    required: true,
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -25,6 +24,8 @@ const userSessionSchema = mongoose.Schema({
     ref: 'userData',
   },
 });
+userSessionSchema.plugin(toJSON);
+userSessionSchema.plugin(paginate);
 
 const UserSession = mongoose.model('UserSession', userSessionSchema);
 

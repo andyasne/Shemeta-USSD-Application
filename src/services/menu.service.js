@@ -1,6 +1,5 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable prefer-destructuring */
-/* eslint-disable no-unused-vars */
-
 const async = require('async');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
@@ -10,15 +9,10 @@ const displayTextService = require('./displayText.service');
 const ApiError = require('../utils/ApiError');
 const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
-const ussdUserService = require('./ussdUser.service');
 
 let allMenuItems;
 let allDisplayText;
-
-  function buildMenu(menuCode) {
-  // const allMenuItemsPromise = menuItemService.getMenuItems();
-  // const allDisplayTextPromise = displayTextService.getDisplayTexts();
-  const lastMenuSet = [];
+function buildMenu(menuCode) {
   const _menu = new Menu(menuCode);
   allMenuItems.forEach((menuItem) => {
     let displayText = {};
@@ -35,27 +29,45 @@ let allDisplayText;
       }
     }
   });
-   return _menu;
-  // await Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
-  //   allMenuItems = values[0];
-  //   allDisplayText = values[1];
-
-
-  // });
+  return _menu;
+}
+async function buildMenuAsync(menuCode) {
+  const allMenuItemsPromise = menuItemService.getMenuItems();
+  const allDisplayTextPromise = displayTextService.getDisplayTexts();
+  const _menu = new Menu(menuCode);
+  return Promise.all([allMenuItemsPromise, allDisplayTextPromise]).then((values) => {
+    allMenuItems = values[0];
+    allDisplayText = values[1];
+    allMenuItems.forEach((menuItem) => {
+      let displayText = {};
+      if (menuItem.parentCode !== undefined) {
+        if (menuItem.parentCode === menuCode) {
+          allDisplayText.forEach((dt) => {
+            if (menuItem.displayText !== undefined) {
+              if (menuItem.displayText.equals(dt._id)) {
+                displayText = dt;
+              }
+            }
+          });
+          _menu.addMenuElements(menuItem, displayText);
+        }
+      }
+    });
+    return _menu;
+  });
 }
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
       if (menuElement.menuItem.code) {
-      let newMenu = buildMenu(menuElement.menuItem.code);
-      if (newMenu.menuElements.length !== 0) {
-        menuSet.push(newMenu);
+        const newMenu = buildMenu(menuElement.menuItem.code);
+        if (newMenu.menuElements.length !== 0) {
+          menuSet.push(newMenu);
+        }
       }
-    }
     });
   }
 }
-
 function getMenuSets(endOfFullMenuTree) {
   const menuSet = [];
   endOfFullMenuTree.forEach((parentMenu) => {
@@ -63,7 +75,6 @@ function getMenuSets(endOfFullMenuTree) {
   });
   return menuSet;
 }
-
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
   if (menuItem.parentCode === undefined || menuItem.parentCode === null || menuItem.parentCode === '') {
@@ -106,14 +117,12 @@ const getFullMenuSet = async () => {
   });
   return fullMenuTree;
 };
-
 const saveFullMenuSet = async (fullMenuSet) => {
   if (fullMenuSet === undefined || fullMenuSet.length === 0) {
     return [];
   }
   let dtPromise;
   let mePromise;
-
   async.whilst(
     function test(callback) {
       callback(null, fullMenuSet.length > 0);
@@ -128,7 +137,6 @@ const saveFullMenuSet = async (fullMenuSet) => {
           } else {
             dtPromise = displayTextService.updateDisplayTextById(me.displayTexts._id, me.displayTexts);
           }
-
           dtPromise.then((dtvalue) => {
             // eslint-disable-next-line no-param-reassign
             me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
@@ -140,8 +148,7 @@ const saveFullMenuSet = async (fullMenuSet) => {
           });
         });
       });
-
-      Promise.all([dtPromise, mePromise]).then((values) => {
+      Promise.all([dtPromise, mePromise]).then(() => {
         callback(null, fullMenuSet);
       });
     },
@@ -152,52 +159,40 @@ const saveFullMenuSet = async (fullMenuSet) => {
     }
   );
 };
-
-const getNextMenuCode = async (menuItemCode, selector) => {
+const getNextMenuCode = async (menuItemCode, _selector) => {
   const query = {
     parentCode: menuItemCode,
-    selector,
+    selector: _selector,
   };
-
   const mi = await menuItemService.queryMenuItems(query, null);
-  return mi;
+  return mi[0].code;
 };
-function isEndSelector(selector) {
-  //TODO
+function isEndSelector() {
+  // TODO
   return false;
 }
-const updateData = async (currentSession, selector, userData, nextMenu) => {
+async function updateData(currentSession, selector, userData, nextMenu) {
   // TODO update currentSession end date if selector is end
   if (isEndSelector(selector)) {
     currentSession.endDate = new Date();
     userSessionService.updateUserSessionById(currentSession.id, currentSession);
   }
-
-  userData.lastMenuCode = nextMenu.code;
-  userData.data.set(nextMenu.code, selector);
+  userData.lastMenuCode = nextMenu._id;
+  userData.data.set(nextMenu._id, selector);
   userDataService.updateUserDataById(userData.id, userData);
-};
-
+}
 const getMenu = async (sessionId, phoneNumber, selector) => {
   // get the session : using the sessionId and Phone number
-
-  const currentSession = userSessionService.getLatestSession(phoneNumber, sessionId);
-
-  const userData = userDataService.getUserDataById(currentSession.userData);
-
-  const nextMenuCode = getNextMenuCode(userData.lastMenuCode, selector);
-
-  const nextMenu = buildMenu(nextMenuCode);
-
+  const currentSession = await userSessionService.getLastSession(phoneNumber, sessionId);
+  const userData = await userDataService.getUserDataById(currentSession.userData.toString());
+  // TODO if(userData.lastMenuCode==undefined , show register user
+  const nextMenuCode = await getNextMenuCode(userData.lastMenuCode, selector);
+  const nextMenu = await buildMenuAsync(nextMenuCode);
   updateData(currentSession, selector, userData, nextMenu);
-
   return nextMenu;
-
 };
-
 module.exports = {
   getFullMenuSet,
   saveFullMenuSet,
   getMenu,
 };
-

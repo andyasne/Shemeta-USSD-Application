@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const { Schema } = mongoose;
 const userDataSchema = new Schema({
   data: {
     type: Map,
-    required: true,
+    required: false,
   },
   lastMenuCode: {
     type: String,
-    required: true,
   },
 });
-
-
+userDataSchema.plugin(toJSON);
+userDataSchema.plugin(paginate);
 
 const UserData = mongoose.model('UserData', userDataSchema);
 
