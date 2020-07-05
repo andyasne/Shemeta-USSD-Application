@@ -341,16 +341,41 @@ function getModelTypeName(modelDef, data) {
   });
   return result;
 }
+
+function getUserDataById(userDatas, id) {
+  let result;
+  userDatas.forEach((userData) => {
+    if (userData._id.toString() === id) {
+      result = userData;
+    }
+  });
+  return result;
+}
+
+function getUssdUserById(ussdUser, id) {
+  let result;
+  ussdUser.forEach((ussdU) => {
+    if (ussdU._id.toString() === id) {
+      result = ussdU;
+    }
+  });
+  return result;
+}
+
 const getUserData = async () => {
   const userDatas = await userDataService.getUserDatas();
+  const userSessions = await userSessionService.getUserSessions();
   const modelDefs = await getModelDefinitions();
+  const ussdUser = await ussdUserService.getUssdUsers();
   const respUserDatas = [];
 
   let selectModelforPopulation = false;
   let respUserData;
 
   modelDefs.forEach((modelDef) => {
-    userDatas.forEach((userData) => {
+    userSessions.forEach((userSession) => {
+      const user = getUssdUserById(ussdUser, userSession.user.toString());
+      const userData = getUserDataById(userDatas, userSession.userData.toString());
       selectModelforPopulation = false;
       const keyIterator = userData.data.keys();
       let done = false;
@@ -363,7 +388,7 @@ const getUserData = async () => {
           selectModelforPopulation = true;
           respUserData = {
             type: '',
-            user: 'No',
+            user,
             data: [],
           };
           respUserData.type = modelDef.typeName;
