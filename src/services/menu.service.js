@@ -269,23 +269,21 @@ const getModelDefinitions = async () => {
   const menuItems = await menuItemService.getMenuItems();
   const displayTexts = await displayTextService.getDisplayTexts();
 
-  let mi;
+  let startModelItem;
   menuItems.forEach((selectedMI) => {
     if (selectedMI.startModelName !== undefined) {
-      mi = selectedMI;
+      startModelItem = selectedMI;
     }
   });
-  if (mi === undefined) return;
+  if (startModelItem === undefined) return;
 
   const modelDef = {
-    typeName: mi.startModelName,
-    startMenuCode: mi.code,
+    typeName: startModelItem.startModelName,
+    startMenuCode: startModelItem.code,
     endModelCode: null,
     code_titles: [],
   };
   const endModelMenuItem = updateEndMenuCode(modelDef, menuItems);
-  //  updateCodeTitles(modelDef, mi, endModelMenuItem);
-
   let startNotReached = true;
   const codeTitles = [];
   setParent(endModelMenuItem);
@@ -303,23 +301,22 @@ const getModelDefinitions = async () => {
       };
       codeTitles.push(ct);
       // FIND THE PARENT
-
-      const parentMod = getParentmenuItem(menuItems, getParent());
-      setParent(parentMod);
-
-      if (parentMod) {
-        if (mi) {
-          if (parentMod.code === mi.code) {
+      if (getParent()) {
+        if (startModelItem) {
+          if (getParent().code === startModelItem.code) {
             startNotReached = false;
             modelDef.code_titles = codeTitles;
             callback(null, startNotReached);
           } else {
+            setParent(getParentmenuItem(menuItems, getParent()));
             callback(null, startNotReached);
           }
         } else {
+          setParent(getParentmenuItem(menuItems, getParent()));
           callback(null, startNotReached);
         }
       } else {
+        setParent(getParentmenuItem(menuItems, getParent()));
         callback(null, startNotReached);
       }
     },

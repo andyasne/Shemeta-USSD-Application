@@ -17,9 +17,8 @@ const getMenu = catchAsync(async (req, res) => {
 });
 const getModelDefinitions = catchAsync(async (req, res) => {
   const menuDefinitions = menuService.getModelDefinitions();
-
-  menuDefinitions.then((p) => {
-    res.status(httpStatus.FOUND).send(p);
+  menuDefinitions.then((mdef) => {
+    res.status(httpStatus.FOUND).send(mdef);
   });
 });
 
