@@ -305,7 +305,7 @@ const getModelDefinitions = async () => {
         if (startModelItem) {
           if (getParent().code === startModelItem.code) {
             startNotReached = false;
-            modelDef.code_titles = codeTitles;
+            modelDef.code_titles = codeTitles.reverse();
             callback(null, startNotReached);
           } else {
             setParent(getParentmenuItem(menuItems, getParent()));
@@ -330,10 +330,6 @@ const getModelDefinitions = async () => {
   );
 
   return modelDef;
-  // codeTitles.forEach((codeDisplayText) => {
-  //   modelDef.code_titles.push(codeDisplayText);
-  // });
-  //   modelDefs.push(modelDef);
 };
 
 module.exports = {
