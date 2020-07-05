@@ -13,11 +13,19 @@ const saveFullMenuSet = catchAsync(async (req, res) => {
 
 const getMenu = catchAsync(async (req, res) => {
   const nextMenu = await menuService.getMenu(req.query.sessionId, req.query.phoneNumber, req.query.selector);
-  res.status(httpStatus.FOUND).send(nextMenu);
+  res.status(httpStatus.OK).send(nextMenu);
+});
+const getModelDefinitions = catchAsync(async (req, res) => {
+  const menuDefinitions = menuService.getModelDefinitions();
+
+  menuDefinitions.then((p) => {
+    res.status(httpStatus.FOUND).send(p);
+  });
 });
 
 module.exports = {
   getFullMenuSet,
   saveFullMenuSet,
   getMenu,
+  getModelDefinitions,
 };

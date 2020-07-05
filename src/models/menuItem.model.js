@@ -38,6 +38,12 @@ const menuItemSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  startModelName: {
+    type: String,
+  },
+  endModelName: {
+    type: String,
+  },
   additionalAttributes: {
     type: String,
   },

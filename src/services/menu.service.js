@@ -13,6 +13,7 @@ const ussdUserService = require('./ussdUser.service');
 
 let allMenuItems; // Testing
 let allDisplayText;
+
 function buildMenu(menuCode) {
   const _menu = new Menu(menuCode);
   allMenuItems.forEach((menuItem) => {
@@ -57,6 +58,7 @@ async function buildMenuAsync(menuCode) {
     return _menu;
   });
 }
+
 function getChildMenusFromMI(parent, menuSet) {
   if (parent.menuElements) {
     parent.menuElements.forEach((menuElement) => {
@@ -69,6 +71,7 @@ function getChildMenusFromMI(parent, menuSet) {
     });
   }
 }
+
 function getMenuSets(endOfFullMenuTree) {
   const menuSet = [];
   endOfFullMenuTree.forEach((parentMenu) => {
@@ -76,6 +79,7 @@ function getMenuSets(endOfFullMenuTree) {
   });
   return menuSet;
 }
+
 function getParentmenu(menuItem, parentMenu) {
   let displayText = {};
   if (menuItem.parentCode === '0') {
@@ -171,14 +175,12 @@ const getNextMenuCode = async (menuItemCode, _selector) => {
   }
   return mi[0].code;
 };
-
 async function updateData(currentSession, selector, userData, nextMenu, _sessionId) {
   // TODO update currentSession end date if selector is end
   // if (isEndSelector(selector)) {
   // currentSession.endDate = new Date();
   currentSession.sessionId = _sessionId;
   userSessionService.updateUserSessionById(currentSession.id, currentSession);
-  // }
   userData.lastMenuCode = nextMenu._id;
   userData.data.set(nextMenu._id, selector);
   userDataService.updateUserDataById(userData.id, userData);
@@ -188,22 +190,18 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   const currentSession = await userSessionService.getLastSession(_phoneNumber, _sessionId);
   if (!currentSession) {
     // Create New UserSession
-
-    const ussdUserJson = {
-      phoneNumber: _phoneNumber,
-      fullName: '',
-      defaultLanguage: 'en',
-      registrationDate: new Date().toString(),
-    };
-
-    const ussdUser = await ussdUserService.createUssdUser(ussdUserJson);
+    // const ussdUserJson = {
+    //   phoneNumber: _phoneNumber,
+    //   fullName: '',
+    //   defaultLanguage: 'en',
+    //   registrationDate: new Date().toString(),
+    // };
+    const ussdUser = await ussdUserService.getUssdUserByPhoneNumber(_phoneNumber);
     const userDataJ = {
       lastMenuCode: '',
       data: {},
     };
-
     const userData = await userDataService.createUserData(userDataJ);
-
     const userSessionJ = {
       startDate: new Date().toString(),
       sessionId: '',
@@ -211,7 +209,6 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
       userData: userData.id.toString(),
     };
     const userSession = await userSessionService.createUserSession(userSessionJ);
-
     const allMenuItemsPromise = menuItemService.getMenuItems();
     const allDisplayTextPromise = displayTextService.getDisplayTexts();
     const values = await Promise.all([allMenuItemsPromise, allDisplayTextPromise]);
@@ -221,7 +218,6 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
     allMenuItems.forEach((menuItem) => {
       getParentmenu(menuItem, nextMenu);
     });
-
     updateData(userSession, _selector, userData, nextMenu, _sessionId);
     return nextMenu;
   }
@@ -232,8 +228,120 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   updateData(currentSession, _selector, userData, nextMenu, _sessionId);
   return nextMenu;
 };
+
+function updateEndMenuCode(modelDef, menuItems) {
+  let menuItem;
+  menuItems.forEach((mi) => {
+    if (modelDef.typeName === mi.endModelName) {
+      modelDef.endModelCode = mi.code;
+      menuItem = mi;
+    }
+  });
+  return menuItem;
+}
+function getDisplayTextById(displayTexts, displayText) {
+  let sdt;
+  displayTexts.forEach((dt) => {
+    if (dt._id.toString() === displayText.displayText._id.toString()) {
+      sdt = dt;
+    }
+  });
+  return sdt;
+}
+function getParentmenuItem(menuItems, childMI) {
+  let smi;
+  menuItems.forEach((mi) => {
+    if (mi.code === childMI.parentCode) {
+      smi = mi;
+    }
+  });
+  return smi;
+}
+let parentModel;
+function getParent() {
+  return parentModel;
+}
+function setParent(_parentModel) {
+  parentModel = _parentModel;
+}
+
+const getModelDefinitions = async () => {
+  const menuItems = await menuItemService.getMenuItems();
+  const displayTexts = await displayTextService.getDisplayTexts();
+
+  let mi;
+  menuItems.forEach((selectedMI) => {
+    if (selectedMI.startModelName !== undefined) {
+      mi = selectedMI;
+    }
+  });
+  if (mi === undefined) return;
+
+  const modelDef = {
+    typeName: mi.startModelName,
+    startMenuCode: mi.code,
+    endModelCode: null,
+    code_titles: [],
+  };
+  const endModelMenuItem = updateEndMenuCode(modelDef, menuItems);
+  //  updateCodeTitles(modelDef, mi, endModelMenuItem);
+
+  let startNotReached = true;
+  const codeTitles = [];
+  setParent(endModelMenuItem);
+
+  async.whilst(
+    function test(callback) {
+      callback(null, startNotReached);
+    },
+    function iter(callback) {
+      const dt = getDisplayTextById(displayTexts, getParent());
+      const parentCode = getParent().code.toString();
+      const ct = {
+        parentCode,
+        displayText: dt,
+      };
+      codeTitles.push(ct);
+      // FIND THE PARENT
+
+      const parentMod = getParentmenuItem(menuItems, getParent());
+      setParent(parentMod);
+
+      if (parentMod) {
+        if (mi) {
+          if (parentMod.code === mi.code) {
+            startNotReached = false;
+            modelDef.code_titles = codeTitles;
+            callback(null, startNotReached);
+          } else {
+            callback(null, startNotReached);
+          }
+        } else {
+          callback(null, startNotReached);
+        }
+      } else {
+        callback(null, startNotReached);
+      }
+    },
+    function (err) {
+      if (err) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
+      } else {
+        return modelDef;
+      }
+    }
+  );
+
+  return modelDef;
+  // codeTitles.forEach((codeDisplayText) => {
+  //   modelDef.code_titles.push(codeDisplayText);
+  // });
+  //   modelDefs.push(modelDef);
+};
+
 module.exports = {
   getFullMenuSet,
   saveFullMenuSet,
   getMenu,
+  getModelDefinitions,
 };
