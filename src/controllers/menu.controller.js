@@ -22,9 +22,17 @@ const getModelDefinitions = catchAsync(async (req, res) => {
   });
 });
 
+const getUserData = catchAsync(async (req, res) => {
+  const userDatas = menuService.getUserData();
+  userDatas.then((userData) => {
+    res.status(httpStatus.FOUND).send(userData);
+  });
+});
+
 module.exports = {
   getFullMenuSet,
   saveFullMenuSet,
   getMenu,
   getModelDefinitions,
+  getUserData,
 };

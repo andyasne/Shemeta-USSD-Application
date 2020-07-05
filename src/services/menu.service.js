@@ -268,68 +268,124 @@ function setParent(_parentModel) {
 const getModelDefinitions = async () => {
   const menuItems = await menuItemService.getMenuItems();
   const displayTexts = await displayTextService.getDisplayTexts();
-
+  const modelDefs = [];
   let startModelItem;
   menuItems.forEach((selectedMI) => {
     if (selectedMI.startModelName !== undefined) {
       startModelItem = selectedMI;
-    }
-  });
-  if (startModelItem === undefined) return;
 
-  const modelDef = {
-    typeName: startModelItem.startModelName,
-    startMenuCode: startModelItem.code,
-    endModelCode: null,
-    code_titles: [],
-  };
-  const endModelMenuItem = updateEndMenuCode(modelDef, menuItems);
-  let startNotReached = true;
-  const codeTitles = [];
-  setParent(endModelMenuItem);
+      if (startModelItem === undefined) return;
 
-  async.whilst(
-    function test(callback) {
-      callback(null, startNotReached);
-    },
-    function iter(callback) {
-      const dt = getDisplayTextById(displayTexts, getParent());
-      const parentCode = getParent().code.toString();
-      const ct = {
-        parentCode,
-        displayText: dt,
+      const modelDef = {
+        typeName: startModelItem.startModelName,
+        startMenuCode: startModelItem.code,
+        endModelCode: null,
+        code_titles: [],
       };
-      codeTitles.push(ct);
-      // FIND THE PARENT
-      if (getParent()) {
-        if (startModelItem) {
-          if (getParent().code === startModelItem.code) {
-            startNotReached = false;
-            modelDef.code_titles = codeTitles.reverse();
-            callback(null, startNotReached);
+      const endModelMenuItem = updateEndMenuCode(modelDef, menuItems);
+      let startNotReached = true;
+      const codeTitles = [];
+      setParent(endModelMenuItem);
+
+      async.whilst(
+        function test(callback) {
+          callback(null, startNotReached);
+        },
+        function iter(callback) {
+          const dt = getDisplayTextById(displayTexts, getParent());
+          const parentCode = getParent().code.toString();
+          const ct = {
+            parentCode,
+            displayText: dt,
+          };
+          codeTitles.push(ct);
+          // FIND THE PARENT
+          if (getParent()) {
+            if (startModelItem) {
+              if (getParent().code === startModelItem.code) {
+                startNotReached = false;
+                modelDef.code_titles = codeTitles.reverse();
+                callback(null, startNotReached);
+              } else {
+                setParent(getParentmenuItem(menuItems, getParent()));
+                callback(null, startNotReached);
+              }
+            } else {
+              setParent(getParentmenuItem(menuItems, getParent()));
+              callback(null, startNotReached);
+            }
           } else {
             setParent(getParentmenuItem(menuItems, getParent()));
             callback(null, startNotReached);
           }
-        } else {
-          setParent(getParentmenuItem(menuItems, getParent()));
-          callback(null, startNotReached);
+        },
+        function (err) {
+          if (err) {
+            throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
+          } else {
+            modelDefs.push(modelDef);
+          }
         }
-      } else {
-        setParent(getParentmenuItem(menuItems, getParent()));
-        callback(null, startNotReached);
-      }
-    },
-    function (err) {
-      if (err) {
-        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Error While Saving');
-      } else {
-        return modelDef;
-      }
+      );
     }
-  );
+  });
 
-  return modelDef;
+  return modelDefs;
+};
+function getModelTypeName(modelDef, data) {
+  let result;
+  modelDef.code_titles.forEach((modelD) => {
+    if (modelD.parentCode === data) {
+      result = modelD.displayText.amharic; // TODO: fetch the default lang for the user
+    }
+  });
+  return result;
+}
+const getUserData = async () => {
+  const userDatas = await userDataService.getUserDatas();
+  const modelDefs = await getModelDefinitions();
+  const respUserDatas = [];
+
+  let selectModelforPopulation = false;
+  let respUserData;
+
+  modelDefs.forEach((modelDef) => {
+    userDatas.forEach((userData) => {
+      selectModelforPopulation = false;
+      const keyIterator = userData.data.keys();
+      let done = false;
+      while (!done) {
+        const val = keyIterator.next();
+        done = val.done;
+        const data = userData.data.get(val.value);
+        if (val.value === modelDef.startMenuCode) {
+          // select the user data
+          selectModelforPopulation = true;
+          respUserData = {
+            type: '',
+            user: 'No',
+            data: [],
+          };
+          respUserData.type = modelDef.typeName;
+          // respUserData.user=
+        }
+
+        if (selectModelforPopulation) {
+          const dt = { name: getModelTypeName(modelDef, val.value), value: data };
+          respUserData.data.push(dt);
+        }
+        if (val.value === modelDef.endModelCode) {
+          done = true;
+        }
+      }
+
+      if (selectModelforPopulation) {
+        respUserDatas.push(respUserData);
+      }
+    });
+  });
+
+  return respUserDatas;
 };
 
 module.exports = {
@@ -337,4 +393,5 @@ module.exports = {
   saveFullMenuSet,
   getMenu,
   getModelDefinitions,
+  getUserData,
 };
