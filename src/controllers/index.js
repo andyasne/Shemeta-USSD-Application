@@ -8,3 +8,4 @@ module.exports.displayTextController = require('./displayText.controller');
 module.exports.userDataController = require('./userData.controller');
 module.exports.userSessionController = require('./userSession.controller');
 module.exports.ussdUserController = require('./ussdUser.controller');
+module.exports.smsUserController = require('./sms.controller');

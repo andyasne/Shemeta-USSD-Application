@@ -10,3 +10,7 @@ module.exports.ussdConfigService = require('./ussdConfig.service');
 module.exports.userSessionService = require('./userSession.service');
 module.exports.userDataService = require('./userData.service');
 module.exports.ussdUserService = require('./ussdUser.service');
+
+module.exports.smsTemplateService = require('./smsTemplate.service');
+module.exports.smsLabelService = require('./smsLabel.service');
+module.exports.smsService = require('./sms.service');

@@ -10,6 +10,7 @@ const menuRoute = require('./menu.route');
 const userDataRoute = require('./userData.route');
 const userSessionRoute = require('./userSession.route');
 const ussdUserRoute = require('./ussdUser.route');
+const smsRoute = require('./sms.route');
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/menu', menuRoute);
 router.use('/userData', userDataRoute);
 router.use('/userSession', userSessionRoute);
 router.use('/ussdUser', ussdUserRoute);
+router.use('/sms', smsRoute);
 
 module.exports = router;

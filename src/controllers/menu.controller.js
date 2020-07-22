@@ -18,14 +18,14 @@ const getMenu = catchAsync(async (req, res) => {
 const getModelDefinitions = catchAsync(async (req, res) => {
   const menuDefinitions = menuService.getModelDefinitions();
   menuDefinitions.then((mdef) => {
-    res.status(httpStatus.FOUND).send(mdef);
+    res.status(httpStatus.OK).send(mdef);
   });
 });
 
 const getUserData = catchAsync(async (req, res) => {
   const userDatas = menuService.getUserData();
   userDatas.then((userData) => {
-    res.status(httpStatus.FOUND).send(userData);
+    res.status(httpStatus.OK).send(userData);
   });
 });
 
