@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const smsTemplateSchema = new Schema({
   smsLabel: {
     type: Schema.Types.ObjectId,
-    required: true,
+    // required: true,
     ref: 'smsLabel',
   },
   additionalAttributes: {

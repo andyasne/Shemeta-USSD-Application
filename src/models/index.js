@@ -8,3 +8,5 @@ module.exports.USSDConfig = require('./ussdConfig.model');
 module.exports.UssdUser = require('./ussdUser.model');
 module.exports.UserSession = require('./userSession.model');
 module.exports.UserData = require('./userData.model');
+module.exports.SMSLabel = require('./smsLabel.model');
+module.exports.SMSTemplate = require('./smsTemplate.model');

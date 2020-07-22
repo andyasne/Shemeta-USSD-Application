@@ -4,19 +4,15 @@ const { Schema } = mongoose;
 const smsLabelSchema = new Schema({
   am: {
     type: String,
-    required: true,
   },
   en: {
     type: String,
-    required: true,
   },
   oro: {
     type: String,
-    required: true,
   },
   tig: {
     type: String,
-    required: true,
   },
 });
 
