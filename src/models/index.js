@@ -10,3 +10,6 @@ module.exports.UserSession = require('./userSession.model');
 module.exports.UserData = require('./userData.model');
 module.exports.SMSLabel = require('./smsLabel.model');
 module.exports.SMSTemplate = require('./smsTemplate.model');
+
+module.exports.SMSMessage = require('./smsMessage.model');
+module.exports.SMSTemplData = require('./smsTemplData.model');

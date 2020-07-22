@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const { pick } = require('lodash');
 const catchAsync = require('../utils/catchAsync');
 const { smsService } = require('../services');
 
@@ -12,7 +13,17 @@ const getAllSMSTemplate = catchAsync(async (req, res) => {
   res.status(httpStatus.FOUND).send(templ);
 });
 
+const sendSMSMessage = catchAsync(async (req, res) => {
+  const templateId = pick(req.body, ['templateId']);
+  const templateData = pick(req.body, ['templateData']);
+  const userId = pick(req.body, ['userId']);
+  const to = pick(req.body, ['to']);
+  const resp = await smsService.sendSMSMessage(templateId, templateData, userId, to);
+  res.status(httpStatus.FOUND).send(resp);
+});
+
 module.exports = {
   saveSMSTemplate,
   getAllSMSTemplate,
+  sendSMSMessage,
 };
