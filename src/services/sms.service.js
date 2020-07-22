@@ -65,7 +65,7 @@ async function sendMessage(builtMsg, to) {
   return 'sent';
 }
 
-  const sendSMSMessage = async (templateId, templateData, userId, to) => {
+const sendSMSMessage = async (templateId, templateData, userId, to) => {
   const template = await smsTemplateService.getSMSTemplateById(templateId);
   const user = await ussdUserService.getUssdUserById(userId);
   const templateDataSave = await smsTemplDataService.createSMSTemplData(templateData);
