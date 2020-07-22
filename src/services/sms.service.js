@@ -52,13 +52,11 @@ async function getDefaultTemplateLabel(template, user) {
 }
 
 function getTemplDataKey(templData) {
-  const temp = JSON.parse(templData);
-  return temp.key;
+  return templData.key;
 }
 
 function getTemplDataVal(templData) {
-  const temp = JSON.parse(templData);
-  return temp.value;
+  return templData.value;
 }
 async function sendMessage(builtMsg, to) {
   const val = `To:${to} , MSG:${builtMsg}`;
@@ -67,13 +65,13 @@ async function sendMessage(builtMsg, to) {
   return 'sent';
 }
 
-const sendSMSMessage = async (templateId, templateData, userId, to) => {
+  const sendSMSMessage = async (templateId, templateData, userId, to) => {
   const template = await smsTemplateService.getSMSTemplateById(templateId);
   const user = await ussdUserService.getUssdUserById(userId);
   const templateDataSave = await smsTemplDataService.createSMSTemplData(templateData);
-  let builtMsg = getDefaultTemplateLabel(template, user);
+  let builtMsg = await getDefaultTemplateLabel(template, user);
 
-  templateData.forEach((templData) => {
+  templateData.data.forEach((templData) => {
     builtMsg = loadash.replace(builtMsg, getTemplDataKey(templData), getTemplDataVal(templData));
   });
 
@@ -91,7 +89,7 @@ const sendSMSMessage = async (templateId, templateData, userId, to) => {
     sentTo: to,
   };
 
-  const savedMsg = smsMessageService.createSMSMessage(smsMsg);
+  const savedMsg = await smsMessageService.createSMSMessage(smsMsg);
   return savedMsg;
 };
 

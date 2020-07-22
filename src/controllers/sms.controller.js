@@ -14,11 +14,7 @@ const getAllSMSTemplate = catchAsync(async (req, res) => {
 });
 
 const sendSMSMessage = catchAsync(async (req, res) => {
-  const templateId = pick(req.body, ['templateId']);
-  const templateData = pick(req.body, ['templateData']);
-  const userId = pick(req.body, ['userId']);
-  const to = pick(req.body, ['to']);
-  const resp = await smsService.sendSMSMessage(templateId, templateData, userId, to);
+   const resp = await smsService.sendSMSMessage(req.body.templateId, req.body.templateData, req.body.userId, req.body.to);
   res.status(httpStatus.FOUND).send(resp);
 });
 

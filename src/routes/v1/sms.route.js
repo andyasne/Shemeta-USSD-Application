@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.route('/template').get(smsController.getAllSMSTemplate).post(smsController.saveSMSTemplate);
 
-router.route('/').post(smsController.sendSMSMessage);
+router.route('/send').post(smsController.sendSMSMessage);
 // router.route('/getUserData').get(menuController.getUserData);
 // router.route('/getModelDefinitions').get(menuController.getModelDefinitions);
 

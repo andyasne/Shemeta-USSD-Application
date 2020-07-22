@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const smsTemplDataSchema = new Schema({
   data: {
-    type: Map,
+    type: Schema.Types.Mixed,
     required: true,
   },
 });
