@@ -14,6 +14,7 @@ const smsLabelSchema = new Schema({
   tig: {
     type: String,
   },
+
 });
 
 const SMSLabel = mongoose.model('smsLabel', smsLabelSchema);

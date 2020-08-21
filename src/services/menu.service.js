@@ -218,6 +218,9 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
     allMenuItems.forEach((menuItem) => {
       getParentmenu(menuItem, nextMenu);
     });
+
+    sortMenuItems(nextMenu);
+
     updateData(userSession, _selector, userData, nextMenu, _sessionId);
     return nextMenu;
   }
@@ -225,9 +228,15 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   // TODO if(userData.lastMenuCode==undefined , show register user
   const nextMenuCode = await getNextMenuCode(userData.lastMenuCode, _selector);
   const nextMenu = await buildMenuAsync(nextMenuCode);
+  sortMenuItems(nextMenu);
+
   updateData(currentSession, _selector, userData, nextMenu, _sessionId);
   return nextMenu;
 };
+
+function sortMenuItems(menu) {
+  menu.menuElements.sort((a, b) => (a.menuItem.order > b.menuItem.order) ? 1 : -1);
+ }
 
 function updateEndMenuCode(modelDef, menuItems) {
   let menuItem;

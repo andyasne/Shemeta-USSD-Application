@@ -5,20 +5,18 @@ const { Schema } = mongoose;
 const displayTextSchema = new Schema({
   english: {
     type: String,
-    required: true,
-  },
+   },
   amharic: {
-    type: String,
+    type: String
   },
   afanOromo: {
-    type: String,
+    type: String
   },
   tigrigna: {
-    type: String,
+    type: String
   },
   isStatic: {
     type: Boolean,
-    required: true,
     default: false,
   },
 });
