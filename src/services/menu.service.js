@@ -185,6 +185,10 @@ async function updateData(currentSession, selector, userData, nextMenu, _session
   userData.data.set(nextMenu._id, selector);
   userDataService.updateUserDataById(userData.id, userData);
 }
+function sortMenuItems(menu) {
+  menu.menuElements.sort((a, b) => (a.menuItem.order > b.menuItem.order ? 1 : -1));
+}
+
 const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   // get the session : using the sessionId and Phone number
   const currentSession = await userSessionService.getLastSession(_phoneNumber, _sessionId);
@@ -233,10 +237,6 @@ const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   updateData(currentSession, _selector, userData, nextMenu, _sessionId);
   return nextMenu;
 };
-
-function sortMenuItems(menu) {
-  menu.menuElements.sort((a, b) => (a.menuItem.order > b.menuItem.order) ? 1 : -1);
- }
 
 function updateEndMenuCode(modelDef, menuItems) {
   let menuItem;

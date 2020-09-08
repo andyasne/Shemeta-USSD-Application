@@ -11,7 +11,3 @@ router.route('/getUserData').get(menuController.getUserData);
 router.route('/getModelDefinitions').get(menuController.getModelDefinitions);
 
 module.exports = router;
-
-
-
-

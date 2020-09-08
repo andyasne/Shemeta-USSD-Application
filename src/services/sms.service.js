@@ -21,16 +21,10 @@ const saveSMSTemplate = async (smsTemplate) => {
 };
 
 const getAllSMSTemplate = async () => {
-  // let t = {additionalAttributes :"add"};
-  // smsTemplateService.createSMSTemplate(t);
-  // let l = {en:"Test"};
-  // smsLabelService.createSMSLabel(l);
-
   const smsTemplates = await smsTemplateService.getSMSTemplates();
   const labels = await smsLabelService.getSMSLabels();
-
   smsTemplates.forEach((templ) => {
-    const s = loadash.find(
+    const templateLabel = loadash.find(
       labels,
       (v) => {
         if (v.id === templ.smsLabel.toString()) {
@@ -39,14 +33,18 @@ const getAllSMSTemplate = async () => {
       },
       0
     );
-    templ.smsLabel = s;
+    templ.smsLabel = templateLabel;
   });
 
   return smsTemplates;
 };
+
 async function getDefaultTemplateLabel(template, user) {
   const lbl = await smsLabelService.getSMSLabelById(template.smsLabel.toString());
   if (user.defaultLanguage === 'en') {
+    return lbl.en;
+  }
+  if (user.defaultLanguage === 'am') {
     return lbl.en;
   }
 }
