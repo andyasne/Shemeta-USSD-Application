@@ -45,16 +45,18 @@ async function getDefaultTemplateLabel(template, user) {
     return lbl.en;
   }
   if (user.defaultLanguage === 'am') {
-    return lbl.en;
+    return lbl.am;
   }
 }
 
 function getTemplDataKey(templData) {
-  return templData.key;
+  if (!loadash.isEmpty(templData)) return loadash.keys(templData)[0];
+  return '';
 }
 
 function getTemplDataVal(templData) {
-  return templData.value;
+  if (!loadash.isEmpty(templData)) return loadash.values(templData)[0];
+  return '';
 }
 async function sendMessage(builtMsg, to) {
   const val = `To:${to} , MSG:${builtMsg}`;

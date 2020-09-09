@@ -48,6 +48,7 @@ components:
           type: string
 
   responses:
+
     DuplicateEmail:
       description: Email already taken
       content:

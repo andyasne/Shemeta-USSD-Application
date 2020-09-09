@@ -14,6 +14,7 @@ const ussdUserSchema = mongoose.Schema({
   },
   registrationDate: {
     type: Date,
+    default: new Date(),
     required: true,
   },
   isActive: {
