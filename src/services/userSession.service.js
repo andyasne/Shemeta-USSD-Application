@@ -1,7 +1,11 @@
 const httpStatus = require('http-status');
-const { UserSession } = require('../models');
+const mongoose = require('mongoose');
+
+const UserSession = require('../models/userSession.model');
+const UserData = require('../models/userData.model');
 const ApiError = require('../utils/ApiError');
 const UssdUser = require('./ussdUser.service');
+const userDataService = require('./userData.service');
 
 /**
  * Create a userSession
@@ -86,7 +90,19 @@ const getLastSession = async (phoneNumber, _sessionId) => {
   const userSession = await UserSession.findOne(query);
   return userSession;
 };
-
+async function createNewSessionInstance(_sessionId, user) {
+  let userData = new UserData();
+  userData.lastMenuCode = '0';
+  userData.data = new Map();
+  userData = await userDataService.createUserData(userData);
+  const session = new UserSession();
+  session.startDate = new Date();
+  session.sessionId = _sessionId;
+  session.user = new mongoose.Types.ObjectId(user.id);
+  session.userData = new mongoose.Types.ObjectId(userData.id);
+  const _userSession = await createUserSession(session);
+  return _userSession;
+}
 module.exports = {
   createUserSession,
   queryUserSessions,
@@ -95,4 +111,5 @@ module.exports = {
   updateUserSessionById,
   deleteUserSessionById,
   getLastSession,
+  createNewSessionInstance,
 };

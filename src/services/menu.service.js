@@ -3,6 +3,7 @@
 const async = require('async');
 const httpStatus = require('http-status');
 const mongoose = require('mongoose');
+const loadash = require('lodash');
 const Menu = require('../models/menu.model');
 const menuItemService = require('./menuItem.service');
 const displayTextService = require('./displayText.service');
@@ -11,6 +12,7 @@ const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
 const ussdUserService = require('./ussdUser.service');
 
+let parentModel;
 let allMenuItems; // Testing
 let allDisplayText;
 
@@ -185,56 +187,80 @@ async function updateData(currentSession, selector, userData, nextMenu, _session
   userData.data.set(nextMenu._id, selector);
   userDataService.updateUserDataById(userData.id, userData);
 }
+async function removeLastData(userData) {
+  if (loadash.size(userData.data) >= 2) {
+    const dataCount = loadash.size(userData.data);
+    let index = 0;
+    let lastMenuKey;
+    const newData = new Map();
+    userData.data.forEach((value, key) => {
+      if (index !== dataCount - 1) {
+        newData.set(key, value);
+        lastMenuKey = key;
+      }
+      index += 1;
+    });
+    userData.data = null;
+    await userDataService.updateUserDataById(userData.id, userData);
+    userData.data = newData;
+    userData.lastMenuCode = lastMenuKey;
+    await userDataService.updateUserDataById(userData.id, userData);
+  }
+}
+
 function sortMenuItems(menu) {
   menu.menuElements.sort((a, b) => (a.menuItem.order > b.menuItem.order ? 1 : -1));
 }
 
 const getMenu = async (_sessionId, _phoneNumber, _selector) => {
   // get the session : using the sessionId and Phone number
-  const currentSession = await userSessionService.getLastSession(_phoneNumber, _sessionId);
+  let currentSession = await userSessionService.getLastSession(_phoneNumber, _sessionId);
+  const ussdUser = await ussdUserService.getUssdUserByPhoneNumber(_phoneNumber);
+  let nextMenu;
+  let nextMenuCode = '';
+  let lastmenuCode = '';
+  let userData;
+
   if (!currentSession) {
-    // Create New UserSession
-    // const ussdUserJson = {
-    //   phoneNumber: _phoneNumber,
-    //   fullName: '',
-    //   defaultLanguage: 'en',
-    //   registrationDate: new Date().toString(),
-    // };
-    const ussdUser = await ussdUserService.getUssdUserByPhoneNumber(_phoneNumber);
-    const userDataJ = {
-      lastMenuCode: '',
-      data: {},
-    };
-    const userData = await userDataService.createUserData(userDataJ);
-    const userSessionJ = {
-      startDate: new Date().toString(),
-      sessionId: '',
-      user: ussdUser.id.toString(),
-      userData: userData.id.toString(),
-    };
-    const userSession = await userSessionService.createUserSession(userSessionJ);
+    currentSession = await userSessionService.createNewSessionInstance('', ussdUser);
+    userData = await userDataService.getUserDataById(currentSession.userData.toString());
     const allMenuItemsPromise = menuItemService.getMenuItems();
     const allDisplayTextPromise = displayTextService.getDisplayTexts();
     const values = await Promise.all([allMenuItemsPromise, allDisplayTextPromise]);
     allMenuItems = values[0];
     allDisplayText = values[1];
-    const nextMenu = new Menu('0');
+    nextMenu = new Menu('0');
     allMenuItems.forEach((menuItem) => {
       getParentmenu(menuItem, nextMenu);
     });
-
-    sortMenuItems(nextMenu);
-
-    updateData(userSession, _selector, userData, nextMenu, _sessionId);
-    return nextMenu;
+  } else {
+    userData = await userDataService.getUserDataById(currentSession.userData.toString());
+    if (_selector === '0' && loadash.size(userData.data) >= 2) {
+      const dataCount = loadash.size(userData.data);
+      let index = 0;
+      let selectorForLastMenu;
+      userData.data.forEach((dt) => {
+        if (index === dataCount - 3) {
+          lastmenuCode = dt;
+        }
+        if (index === dataCount - 2) {
+          selectorForLastMenu = dt;
+        }
+        index += 1;
+      });
+      nextMenuCode = await getNextMenuCode(lastmenuCode, selectorForLastMenu);
+    } else {
+      lastmenuCode = userData.lastMenuCode;
+      nextMenuCode = await getNextMenuCode(lastmenuCode, _selector);
+    }
+    nextMenu = await buildMenuAsync(nextMenuCode);
   }
-  const userData = await userDataService.getUserDataById(currentSession.userData.toString());
-  // TODO if(userData.lastMenuCode==undefined , show register user
-  const nextMenuCode = await getNextMenuCode(userData.lastMenuCode, _selector);
-  const nextMenu = await buildMenuAsync(nextMenuCode);
   sortMenuItems(nextMenu);
-
-  updateData(currentSession, _selector, userData, nextMenu, _sessionId);
+  if (_selector === '0' && loadash.size(userData.data) >= 2) {
+    removeLastData(userData);
+  } else {
+    updateData(currentSession, _selector, userData, nextMenu, _sessionId);
+  }
   return nextMenu;
 };
 
@@ -248,6 +274,7 @@ function updateEndMenuCode(modelDef, menuItems) {
   });
   return menuItem;
 }
+
 function getDisplayTextById(displayTexts, displayText) {
   let sdt;
   displayTexts.forEach((dt) => {
@@ -257,6 +284,7 @@ function getDisplayTextById(displayTexts, displayText) {
   });
   return sdt;
 }
+
 function getParentmenuItem(menuItems, childMI) {
   let smi;
   menuItems.forEach((mi) => {
@@ -266,10 +294,11 @@ function getParentmenuItem(menuItems, childMI) {
   });
   return smi;
 }
-let parentModel;
+
 function getParent() {
   return parentModel;
 }
+
 function setParent(_parentModel) {
   parentModel = _parentModel;
 }
@@ -341,6 +370,7 @@ const getModelDefinitions = async () => {
 
   return modelDefs;
 };
+
 function getModelTypeName(modelDef, data) {
   let result;
   modelDef.code_titles.forEach((modelD) => {
@@ -405,7 +435,10 @@ const getUserData = async () => {
         }
 
         if (selectModelforPopulation) {
-          const dt = { name: getModelTypeName(modelDef, val.value), value: data };
+          const dt = {
+            name: getModelTypeName(modelDef, val.value),
+            value: data,
+          };
           respUserData.data.push(dt);
         }
         if (val.value === modelDef.endModelCode) {
