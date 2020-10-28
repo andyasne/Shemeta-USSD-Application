@@ -3,7 +3,7 @@ const ussdConfigController = require('../../controllers/ussdConfig.controller');
 
 const router = express.Router();
 
-router.route('/').post(ussdConfigController.createUSSDConfig).get(ussdConfigController.getUSSDConfigs);
+router.route('/').post(ussdConfigController.createUSSDConfig).get(ussdConfigController.getAllUSSDConfigs);
 
 router
   .route('/:ussdConfigId')

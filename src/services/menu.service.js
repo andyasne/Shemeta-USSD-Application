@@ -11,6 +11,7 @@ const ApiError = require('../utils/ApiError');
 const userDataService = require('./userData.service');
 const userSessionService = require('./userSession.service');
 const ussdUserService = require('./ussdUser.service');
+const ussdConfigService = require('./ussdConfig.service');
 
 let parentModel;
 let allMenuItems; // Testing
@@ -149,6 +150,7 @@ const saveFullMenuSet = async (fullMenuSet) => {
             me.menuItem.displayText = new mongoose.Types.ObjectId(dtvalue.id);
             if (me.menuItem._id === undefined) {
               mePromise = menuItemService.createMenuItem(me.menuItem);
+              ussdConfigService.updateLastCode();
             } else {
               mePromise = menuItemService.updateMenuItemById(me.menuItem._id, me.menuItem);
             }

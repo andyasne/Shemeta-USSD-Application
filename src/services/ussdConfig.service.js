@@ -48,6 +48,30 @@ const updateUSSDConfigById = async (USSDConfigId, updateBody) => {
   await ussdConfig.save();
   return ussdConfig;
 };
+const getUSSDConfigs = async () => {
+  const ussdConfigs = await USSDConfig.find({});
+  return ussdConfigs;
+};
+
+const updateLastCode = async () => {
+  const ussdConfigs = await getUSSDConfigs();
+  let ussdConfig = null;
+
+  if (ussdConfigs.length === 0 || ussdConfigs === undefined) {
+    ussdConfig = new USSDConfig();
+    ussdConfig.code = '0';
+    ussdConfig = await createUSSDConfig(ussdConfig);
+  } else {
+    // eslint-disable-next-line prefer-destructuring
+    ussdConfig = ussdConfigs[0];
+  }
+  let code = Number(ussdConfig.nextMenuCode);
+  code += 1;
+  ussdConfig.nextMenuCode = code.toString();
+  await ussdConfig.save();
+  return ussdConfig;
+};
+
 /**
  * Delete USSDConfig by id
  * @param {ObjectId} USSDConfigId
@@ -67,4 +91,6 @@ module.exports = {
   getUSSDConfigById,
   updateUSSDConfigById,
   deleteUSSDConfigById,
+  updateLastCode,
+  getUSSDConfigs,
 };

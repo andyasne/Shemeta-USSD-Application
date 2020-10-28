@@ -6,12 +6,16 @@ const ussdConfigSchema = new Schema({
   Languages: [],
   defaultLanguage: {
     type: String,
-    required: true,
+
     default: 'amharic',
+  },
+  nextMenuCode: {
+    type: String,
+    default: '0',
   },
   validationDisplayTextLength: {
     type: Number,
-    required: true,
+
     default: 30,
   },
 });

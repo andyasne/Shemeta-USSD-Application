@@ -33,6 +33,10 @@ const deleteUSSDConfig = catchAsync(async (req, res) => {
   await ussdConfigService.deleteUSSDConfigById(req.params.ussdConfigId);
   res.status(httpStatus.NO_CONTENT).send();
 });
+const getAllUSSDConfigs = catchAsync(async (req, res) => {
+  const result = await ussdConfigService.getUSSDConfigs();
+  res.send(result);
+});
 
 module.exports = {
   createUSSDConfig,
@@ -40,4 +44,5 @@ module.exports = {
   getUSSDConfig,
   updateUSSDConfig,
   deleteUSSDConfig,
+  getAllUSSDConfigs,
 };

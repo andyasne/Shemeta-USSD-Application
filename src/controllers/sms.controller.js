@@ -16,7 +16,7 @@ const sendSMSMessage = catchAsync(async (req, res) => {
 
 const getAllSMSTemplate = catchAsync(async (req, res) => {
   const templ = await smsService.getAllSMSTemplate();
-  res.status(httpStatus.FOUND).send(templ);
+  res.send(templ);
 });
 
 const getAllSentSMSMessages = catchAsync(async (req, res) => {
