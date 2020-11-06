@@ -1,6 +1,10 @@
+/* eslint-disable no-restricted-syntax */
 const httpStatus = require('http-status');
 const { SMSMessage } = require('../models');
 const ApiError = require('../utils/ApiError');
+const smsTemplateService = require('./smsTemplate.service');
+const ussdUserService = require('./ussdUser.service');
+const smsTemplDataService = require('./smsTemplData.service');
 
 /**
  * Create a smsMessage
@@ -23,6 +27,16 @@ const querySMSMessages = async (filter) => {
 };
 const getSMSMessages = async () => {
   const smsMessages = await SMSMessage.find({});
+  for await (const smsMessage of smsMessages) {
+    smsMessage.ussdUser = await ussdUserService.getUssdUserById(smsMessage.ussdUser);
+
+    const template = await smsTemplateService.getSMSTemplateById(smsMessage.smsTemplate);
+    smsMessage.smsTemplate = template;
+
+    const templateDataSave = await smsTemplDataService.getSMSTemplDataById(smsMessage.smsTemplData);
+    smsMessage.smsTemplData = templateDataSave;
+  }
+
   return smsMessages;
 };
 /**

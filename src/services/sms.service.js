@@ -90,6 +90,7 @@ const sendSMSMessage = async (templateId, templateData, userId, to) => {
   };
 
   const savedMsg = await smsMessageService.createSMSMessage(smsMsg);
+
   return savedMsg;
 };
 
