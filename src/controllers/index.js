@@ -9,3 +9,6 @@ module.exports.userDataController = require('./userData.controller');
 module.exports.userSessionController = require('./userSession.controller');
 module.exports.ussdUserController = require('./ussdUser.controller');
 module.exports.smsUserController = require('./sms.controller');
+
+module.exports.vasMessageController = require('./vasMessage.controller');
+module.exports.smsSubscriberController = require('./smsSubscriber.controller');

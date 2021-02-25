@@ -11,6 +11,8 @@ const userDataRoute = require('./userData.route');
 const userSessionRoute = require('./userSession.route');
 const ussdUserRoute = require('./ussdUser.route');
 const smsRoute = require('./sms.route');
+const smsSubscriberRoute = require('./smsSubscriber.route');
+const vasMessageRoute = require('./vasMessage.route');
 
 const router = express.Router();
 
@@ -25,5 +27,7 @@ router.use('/userData', userDataRoute);
 router.use('/userSession', userSessionRoute);
 router.use('/ussdUser', ussdUserRoute);
 router.use('/sms', smsRoute);
+router.use('/smsSubscriber', smsSubscriberRoute);
+router.use('/vasMessage', vasMessageRoute);
 
 module.exports = router;

@@ -16,3 +16,6 @@ module.exports.smsLabelService = require('./smsLabel.service');
 module.exports.smsService = require('./sms.service');
 module.exports.smsMessageService = require('./smsMessage.service');
 module.exports.smsTemplDataService = require('./smsTemplData.service');
+
+module.exports.smsSubscriberService = require('./smsSubscriber.service');
+module.exports.vasMessageService = require('./vasMessage.service');

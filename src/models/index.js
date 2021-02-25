@@ -13,3 +13,6 @@ module.exports.SMSTemplate = require('./smsTemplate.model');
 
 module.exports.SMSMessage = require('./smsMessage.model');
 module.exports.SMSTemplData = require('./smsTemplData.model');
+
+module.exports.SMSSubscriber = require('./smsSubscriber.model');
+module.exports.VASMessage = require('./vasMessage.model');
