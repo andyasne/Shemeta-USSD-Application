@@ -8,6 +8,7 @@ const smsSubscriberSchema = mongoose.Schema({
   },
   subscribedDate: {
     type: Date,
+    default: new Date(),
   },
   unSubscribedDate: {
     type: Date,
@@ -15,10 +16,11 @@ const smsSubscriberSchema = mongoose.Schema({
   status: {
     type: String,
   },
+
   lastSentVASMessage: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'VASMessage',
+    ref: 'vasMessage',
   },
 });
 smsSubscriberSchema.plugin(toJSON);
