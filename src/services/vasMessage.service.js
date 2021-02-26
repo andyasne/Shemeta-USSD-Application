@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const loadash = require('lodash');
 const { VASMessage } = require('../models');
 const ApiError = require('../utils/ApiError');
 
@@ -64,6 +65,26 @@ const deleteVASMessageById = async (vasMessageId) => {
   return vasMessage;
 };
 
+const getNextVASMessage = async (currentVasMessageOrder) => {
+  const vasMessages = await getVASMessages();
+  loadash.sortBy(vasMessages, ['order']);
+  let currentReached = false;
+  let nextVasMessage;
+  vasMessages.forEach((vasMessage) => {
+    if (currentReached) {
+      if (vasMessage.isActive && nextVasMessage === undefined) {
+        nextVasMessage = vasMessage;
+      }
+    }
+
+    if (vasMessage.order === Number(currentVasMessageOrder)) {
+      currentReached = true;
+    }
+  });
+
+  return nextVasMessage;
+};
+
 module.exports = {
   createVASMessage,
   queryVASMessages,
@@ -71,4 +92,5 @@ module.exports = {
   getVASMessages,
   updateVASMessageById,
   deleteVASMessageById,
+  getNextVASMessage,
 };

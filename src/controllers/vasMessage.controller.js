@@ -34,10 +34,16 @@ const deleteVASMessage = catchAsync(async (req, res) => {
   res.status(httpStatus.NO_CONTENT).send();
 });
 
+const getNextVASMessage = catchAsync(async (req, res) => {
+  const vasMessage = await vasMessageService.getNextVASMessage(req.params.currentVasMessageOrder);
+  res.send(vasMessage);
+});
+
 module.exports = {
   createVASMessage,
   getVASMessages,
   getVASMessage,
   updateVASMessage,
   deleteVASMessage,
+  getNextVASMessage,
 };

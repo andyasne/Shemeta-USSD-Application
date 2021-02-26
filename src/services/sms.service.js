@@ -98,4 +98,5 @@ module.exports = {
   saveSMSTemplate,
   getAllSMSTemplate,
   sendSMSMessage,
+  sendMessage,
 };

@@ -1,6 +1,13 @@
+const mongoose = require('mongoose');
+
 const httpStatus = require('http-status');
 const { SMSSubscriber } = require('../models');
+
 const ApiError = require('../utils/ApiError');
+const vasMessageService = require('./vasMessage.service');
+const smsService = require('./sms.service');
+const smsTemplateService = require('./smsTemplData.service');
+const smsLabelService = require('./smsLabel.service');
 
 /**
  * Create a smsSubscriber
@@ -63,6 +70,32 @@ const deleteSMSSubscriberById = async (smsSubscriberId) => {
   await smsSubscriber.remove();
   return smsSubscriber;
 };
+async function sendVasMessage(smsSubscriber, nextVasMessage) {
+  const smsTemplate = smsTemplateService.getSMSTemplDataById(nextVasMessage.smsTemplate);
+  const smsLabel = smsLabelService.getSMSLabelById(smsTemplate.smsLabel);
+  smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
+}
+const sendNextVasMessagestoSMSSubscribers = async () => {
+  const smsSubscribers = await getSMSSubscribers();
+  smsSubscribers.forEach(async (smsSubscriber) => {
+    if (smsSubscriber.status === 'Active') {
+      let nextVasMessage;
+      if (smsSubscriber.lastSentVASMessage === undefined) {
+        nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
+      } else {
+        nextVasMessage = await vasMessageService.getVASMessageById(smsSubscriber.lastSentVASMessage);
+      }
+
+      if (nextVasMessage !== undefined) {
+        // send messages here
+        await sendVasMessage(smsSubscriber, nextVasMessage);
+        // update smsSubscriberNextMessage
+        this.smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
+        await updateSMSSubscriberById(nextVasMessage.id, nextVasMessage);
+      }
+    }
+  });
+};
 
 module.exports = {
   createSMSSubscriber,
@@ -71,4 +104,5 @@ module.exports = {
   getSMSSubscribers,
   updateSMSSubscriberById,
   deleteSMSSubscriberById,
+  sendNextVasMessagestoSMSSubscribers,
 };

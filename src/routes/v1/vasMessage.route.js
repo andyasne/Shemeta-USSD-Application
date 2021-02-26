@@ -11,4 +11,6 @@ router
   .patch(vasMessageController.updateVASMessage)
   .delete(vasMessageController.deleteVASMessage);
 
+router.route('/NextVASMessage/:currentVasMessageOrder').get(vasMessageController.getNextVASMessage);
+
 module.exports = router;
