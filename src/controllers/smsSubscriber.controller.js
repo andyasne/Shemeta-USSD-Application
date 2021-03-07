@@ -9,6 +9,11 @@ const createSMSSubscriber = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(smsSubscriber);
 });
 
+const sendNextVasMessagestoSMSSubscribers = catchAsync(async (req, res) => {
+  await smsSubscriberService.sendNextVasMessagestoSMSSubscribers();
+  res.status(httpStatus.NO_CONTENT).send();
+});
+
 const getSMSSubscribers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['defaultLanguage']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
@@ -40,4 +45,5 @@ module.exports = {
   getSMSSubscriber,
   updateSMSSubscriber,
   deleteSMSSubscriber,
+  sendNextVasMessagestoSMSSubscribers,
 };

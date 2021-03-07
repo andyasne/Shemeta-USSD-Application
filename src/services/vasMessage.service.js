@@ -90,8 +90,10 @@ const getNextVASMessage = async (currentVasMessageOrder) => {
         nextVasMessage = vasMessage;
       }
     }
-
-    if (vasMessage.order === Number(currentVasMessageOrder)) {
+    if (Number(currentVasMessageOrder) === 0 && nextVasMessage === undefined) {
+      currentReached = true;
+      nextVasMessage = vasMessage;
+    } else if (vasMessage.order === Number(currentVasMessageOrder)) {
       currentReached = true;
     }
   });

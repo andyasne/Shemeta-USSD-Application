@@ -84,14 +84,16 @@ const sendNextVasMessagestoSMSSubscribers = async () => {
         nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
       } else {
         nextVasMessage = await vasMessageService.getVASMessageById(smsSubscriber.lastSentVASMessage);
+        nextVasMessage = await vasMessageService.getNextVASMessage(Number(nextVasMessage.order));
       }
 
       if (nextVasMessage !== undefined) {
         // send messages here
         await sendVasMessage(smsSubscriber, nextVasMessage);
         // update smsSubscriberNextMessage
-        this.smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
-        await updateSMSSubscriberById(nextVasMessage.id, nextVasMessage);
+        // eslint-disable-next-line no-param-reassign
+        smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
+        await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
       }
     }
   });

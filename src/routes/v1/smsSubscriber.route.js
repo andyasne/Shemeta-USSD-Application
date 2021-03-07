@@ -11,4 +11,5 @@ router
   .patch(smsSubscriberController.updateSMSSubscriber)
   .delete(smsSubscriberController.deleteSMSSubscriber);
 
+router.route('/sendNextVasMessages').post(smsSubscriberController.sendNextVasMessagestoSMSSubscribers);
 module.exports = router;
