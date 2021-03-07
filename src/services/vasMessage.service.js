@@ -80,8 +80,8 @@ const deleteVASMessageById = async (vasMessageId) => {
 };
 
 const getNextVASMessage = async (currentVasMessageOrder) => {
-  const vasMessages = await getVASMessages();
-  loadash.sortBy(vasMessages, ['order']);
+  let vasMessages = await getVASMessages();
+  vasMessages = loadash.sortBy(vasMessages, ['order']);
   let currentReached = false;
   let nextVasMessage;
   vasMessages.forEach((vasMessage) => {
