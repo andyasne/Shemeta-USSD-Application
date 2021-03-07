@@ -13,6 +13,15 @@ const createVASMessage = async (vasMessageBody) => {
   return vasMessage;
 };
 
+const uploadVASMessages = async (vasMessages) => {
+  const savedMessages = [];
+  vasMessages.forEach(async (vasMessage) => {
+    const savedVasMessage = await VASMessage.create(vasMessage);
+    savedMessages.push(savedVasMessage);
+  });
+  return savedMessages;
+};
+
 /**
  * Query for vasMessages
  * @param {Object} filter - Mongo filter
@@ -93,4 +102,5 @@ module.exports = {
   updateVASMessageById,
   deleteVASMessageById,
   getNextVASMessage,
+  uploadVASMessages,
 };

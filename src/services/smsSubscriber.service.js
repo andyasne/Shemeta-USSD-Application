@@ -78,7 +78,7 @@ async function sendVasMessage(smsSubscriber, nextVasMessage) {
 const sendNextVasMessagestoSMSSubscribers = async () => {
   const smsSubscribers = await getSMSSubscribers();
   smsSubscribers.forEach(async (smsSubscriber) => {
-    if (smsSubscriber.status === 'Active') {
+    if (smsSubscriber.isActive) {
       let nextVasMessage;
       if (smsSubscriber.lastSentVASMessage === undefined) {
         nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE

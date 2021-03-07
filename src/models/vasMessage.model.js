@@ -8,10 +8,10 @@ const vasMessageSchema = mongoose.Schema({
   },
   order: {
     type: Number,
+    // auroincreament
   },
   isActive: {
     type: Boolean,
-    required: true,
     default: true,
   },
   smsTemplate: {

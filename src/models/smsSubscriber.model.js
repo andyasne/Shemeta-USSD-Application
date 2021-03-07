@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const smsSubscriberSchema = mongoose.Schema({
   phoneNumber: {
     type: String,
+    required: true,
   },
   subscribedDate: {
     type: Date,
@@ -13,13 +14,13 @@ const smsSubscriberSchema = mongoose.Schema({
   unSubscribedDate: {
     type: Date,
   },
-  status: {
-    type: String,
+  isActive: {
+    type: Boolean,
+    required: true,
+    default: true,
   },
-
   lastSentVASMessage: {
     type: Schema.Types.ObjectId,
-    required: true,
     ref: 'vasMessage',
   },
 });

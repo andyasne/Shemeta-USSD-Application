@@ -9,6 +9,11 @@ const createVASMessage = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(vasMessage);
 });
 
+const uploadVASMessages = catchAsync(async (req, res) => {
+  const vasMessage = await vasMessageService.uploadVASMessages(req.body);
+  res.status(httpStatus.CREATED).send(vasMessage);
+});
+
 const getVASMessages = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['defaultLanguage']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
@@ -46,4 +51,5 @@ module.exports = {
   updateVASMessage,
   deleteVASMessage,
   getNextVASMessage,
+  uploadVASMessages,
 };

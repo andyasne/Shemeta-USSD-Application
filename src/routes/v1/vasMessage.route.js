@@ -13,4 +13,6 @@ router
 
 router.route('/NextVASMessage/:currentVasMessageOrder').get(vasMessageController.getNextVASMessage);
 
+router.route('/uploadVASMessages').post(vasMessageController.uploadVASMessages);
+
 module.exports = router;
