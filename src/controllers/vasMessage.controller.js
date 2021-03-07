@@ -10,8 +10,8 @@ const createVASMessage = catchAsync(async (req, res) => {
 });
 
 const uploadVASMessages = catchAsync(async (req, res) => {
-  const vasMessage = await vasMessageService.uploadVASMessages(req.body);
-  res.status(httpStatus.CREATED).send(vasMessage);
+  const vasMessages = await vasMessageService.uploadVASMessages(req.body);
+  res.status(httpStatus.CREATED).send(vasMessages);
 });
 
 const getVASMessages = catchAsync(async (req, res) => {

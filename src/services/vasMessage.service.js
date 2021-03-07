@@ -1,8 +1,10 @@
 /* eslint-disable no-param-reassign */
+const mongoose = require('mongoose');
+
 const httpStatus = require('http-status');
 const loadash = require('lodash');
 const { VASMessage } = require('../models');
-const { SMSTemplateService } = require('./smsTemplate.service');
+const smsService = require('./sms.service');
 const ApiError = require('../utils/ApiError');
 
 /**
@@ -16,16 +18,13 @@ const createVASMessage = async (vasMessageBody) => {
 };
 
 const uploadVASMessages = async (vasMessages) => {
-  const savedMessages = [];
   vasMessages.forEach(async (vasMessage) => {
-    const { _smsTemplate } = vasMessage.smsTemplate;
+    const _smsTemplate = vasMessage.smsTemplate;
     delete vasMessage.smsTemplate;
-    const smsTemplate = await SMSTemplateService.createSMSTemplate(_smsTemplate);
-    vasMessage.smsTemplate = smsTemplate._id;
-    const savedVasMessage = await VASMessage.create(vasMessage);
-    savedMessages.push(savedVasMessage);
+    const smsTemplate = await smsService.saveSMSTemplate(_smsTemplate);
+    vasMessage.smsTemplate = new mongoose.Types.ObjectId(smsTemplate.template._id);
+    await VASMessage.create(vasMessage);
   });
-  return savedMessages;
 };
 
 /**
