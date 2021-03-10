@@ -9,6 +9,15 @@ const createSMSSubscriber = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(smsSubscriber);
 });
 
+const subscribeSMSSubscribers = catchAsync(async (req, res) => {
+  const smsSubscribers = await smsSubscriberService.subscribeSMSSubscribers(req.body);
+  res.status(httpStatus.CREATED).send(smsSubscribers);
+});
+const sendWelcomeMessage = catchAsync(async (req, res) => {
+  const welcomeMessageSubscribers = await smsSubscriberService.sendWelcomeMessage(req.body);
+  res.status(httpStatus.CREATED).send(welcomeMessageSubscribers);
+});
+
 const sendNextVasMessagestoSMSSubscribers = catchAsync(async (req, res) => {
   await smsSubscriberService.sendNextVasMessagestoSMSSubscribers();
   res.status(httpStatus.NO_CONTENT).send();
@@ -46,4 +55,6 @@ module.exports = {
   updateSMSSubscriber,
   deleteSMSSubscriber,
   sendNextVasMessagestoSMSSubscribers,
+  subscribeSMSSubscribers,
+  sendWelcomeMessage,
 };

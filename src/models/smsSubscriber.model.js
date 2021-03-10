@@ -9,7 +9,6 @@ const smsSubscriberSchema = mongoose.Schema({
   },
   subscribedDate: {
     type: Date,
-    default: new Date(),
   },
   unSubscribedDate: {
     type: Date,

@@ -1,3 +1,6 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-undef */
 const mongoose = require('mongoose');
 
 const httpStatus = require('http-status');
@@ -99,6 +102,29 @@ const sendNextVasMessagestoSMSSubscribers = async () => {
   });
 };
 
+const subscribeSMSSubscribers = async (smsSubscribers) => {
+  const promises = [];
+  for (let i = 0; i < smsSubscribers.length; i++) {
+    smsSubscribers[i].subscribedDate = new Date();
+    promises.push(updateSMSSubscriberById(smsSubscribers[i].id, smsSubscribers[i]));
+  }
+  const results = await Promise.all(promises);
+  return results;
+};
+
+const sendWelcomeMessage = async (smsSubscribers) => {
+  const wellcomeVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
+
+  const promises = [];
+  for (let i = 0; i < smsSubscribers.length; i++) {
+    sendVasMessage(smsSubscribers[i], wellcomeVasMessage);
+    smsSubscribers[i].lastSentVASMessage = new mongoose.Types.ObjectId(wellcomeVasMessage.id);
+    promises.push(updateSMSSubscriberById(smsSubscribers[i].id, smsSubscribers[i]));
+  }
+  const results = await Promise.all(promises);
+  return results;
+};
+
 module.exports = {
   createSMSSubscriber,
   querySMSSubscribers,
@@ -107,4 +133,6 @@ module.exports = {
   updateSMSSubscriberById,
   deleteSMSSubscriberById,
   sendNextVasMessagestoSMSSubscribers,
+  subscribeSMSSubscribers,
+  sendWelcomeMessage,
 };
