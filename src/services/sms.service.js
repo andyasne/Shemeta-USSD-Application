@@ -6,6 +6,7 @@ const smsLabelService = require('./smsLabel.service');
 const ussdUserService = require('./ussdUser.service');
 const smsMessageService = require('./smsMessage.service');
 const smsTemplDataService = require('./smsTemplData.service');
+const axios = require('axios');
 
 const saveSMSTemplate = async (smsTemplate) => {
   const { smsLabel } = smsTemplate;
@@ -59,10 +60,17 @@ function getTemplDataVal(templData) {
   return '';
 }
 async function sendMessage(builtMsg, to) {
-  const val = `To:${to} , MSG:${builtMsg}`;
-  // TODO: Add send message Logic Here
-  to = val;
-  return 'sent';
+  let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to="+to+"&from=9039&text="+builtMsg;
+  axios.get(SendURL)
+  .then(response => {
+    console.log(response.data.url);
+    console.log(response.data.explanation);
+    return 'Sent';
+  })
+  .catch(error => {
+   return 'Error Sending';
+  });
+   
 }
 
 const sendSMSMessage = async (templateId, templateData, userId, to) => {
