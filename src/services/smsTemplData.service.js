@@ -22,16 +22,18 @@ const querySMSTemplDatas = async (filter) => {
   return smsTemplDatas;
 };
 const getSMSTemplDatas = async () => {
-  const smsTemplDatas = await SMSTemplData.find({});
-  return smsTemplDatas;
+  return   SMSTemplData.find({});
+ 
 };
-/**
+/** 
  * Get smsTemplData by id
  * @param {ObjectId} id
  * @returns {Promise<SMSTemplData>}
  */
 const getSMSTemplDataById = async (id) => {
-  return SMSTemplData.findById(id);
+  const smsTemplDatas = await SMSTemplData.findById(id);
+  return smsTemplDatas;
+
 };
 
 /**

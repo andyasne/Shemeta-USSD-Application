@@ -9,7 +9,7 @@ const { SMSSubscriber } = require('../models');
 const ApiError = require('../utils/ApiError');
 const vasMessageService = require('./vasMessage.service');
 const smsService = require('./sms.service');
-const smsTemplateService = require('./smsTemplData.service');
+const smsTemplateService = require('./smsTemplate.service');
 const smsLabelService = require('./smsLabel.service');
 
 /**
@@ -74,9 +74,9 @@ const deleteSMSSubscriberById = async (smsSubscriberId) => {
   return smsSubscriber;
 };
 async function sendVasMessage(smsSubscriber, nextVasMessage) {
-  const smsTemplate = smsTemplateService.getSMSTemplDataById(nextVasMessage.smsTemplate);
-  const smsLabel = smsLabelService.getSMSLabelById(smsTemplate.smsLabel);
-  smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
+  const smsTemplate = await smsTemplateService.getSMSTemplateById(nextVasMessage.smsTemplate);
+  const smsLabel = await smsLabelService.getSMSLabelById(smsTemplate.smsLabel);
+  return smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
 }
 const sendNextVasMessagestoSMSSubscribers = async () => {
   const smsSubscribers = await getSMSSubscribers();
@@ -92,7 +92,7 @@ const sendNextVasMessagestoSMSSubscribers = async () => {
 
       if (nextVasMessage !== undefined) {
         // send messages here
-        await sendVasMessage(smsSubscriber, nextVasMessage);
+        smsSubscriber.lastSentVASMessageResult=  await sendVasMessage(smsSubscriber, nextVasMessage);
         // update smsSubscriberNextMessage
         // eslint-disable-next-line no-param-reassign
         smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);

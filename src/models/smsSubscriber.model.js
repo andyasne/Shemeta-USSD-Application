@@ -21,6 +21,9 @@ const smsSubscriberSchema = mongoose.Schema({
   lastSentVASMessage: {
     type: Schema.Types.ObjectId,
     ref: 'vasMessage',
+  }, 
+  lastSentVASMessageResult: {
+    type: String
   },
 });
 smsSubscriberSchema.plugin(toJSON);

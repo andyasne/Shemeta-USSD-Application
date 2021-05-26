@@ -65,12 +65,12 @@ async function sendMessage(builtMsg, to) {
   .then(response => {
     console.log(response.data.url);
     console.log(response.data.explanation);
-    return 'Sent';
+    return 'Sent to '+ SendURL;
   })
   .catch(error => {
-   return 'Error Sending';
+   return 'Error Sending '+error;
   });
-   
+    
 }
 
 const sendSMSMessage = async (templateId, templateData, userId, to) => {
