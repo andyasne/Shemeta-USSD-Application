@@ -59,13 +59,19 @@ function getTemplDataVal(templData) {
   if (!loadash.isEmpty(templData)) return loadash.values(templData)[0];
   return '';
 }
+function fixedEncodeURIComponent(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  });
+}
 async function sendMessage(builtMsg, to) {
+  builtMsg =  fixedEncodeURIComponent(builtMsg);
   let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to="+to+"&from=9039&text="+builtMsg;
   axios.get(SendURL)
   .then(response => {
-    console.log(response.data.url);
-    console.log(response.data.explanation);
-    return 'Sent to '+ SendURL;
+    console.log(response);
+    console.log(response);
+    return 'Sent with URL: '+ SendURL;
   })
   .catch(error => {
    return 'Error Sending '+error;
