@@ -28,11 +28,11 @@ const createSMSSubscriber = async (smsSubscriberBody) => {
  * @returns {Promise<QueryResult>}
  */
 const querySMSSubscribers = async (filter) => {
-  const smsSubscribers = await SMSSubscriber.find(filter);
+  const smsSubscribers = await SMSSubscriber.find(filter); 
   return smsSubscribers;
 };
 const getSMSSubscribers = async () => {
-  const smsSubscribers = await SMSSubscriber.find({});
+  const smsSubscribers = await SMSSubscriber.find({}).populate('lastSentVASMessage').execPopulate(); 
   return smsSubscribers;
 };
 /**
@@ -41,7 +41,9 @@ const getSMSSubscribers = async () => {
  * @returns {Promise<SMSSubscriber>}
  */
 const getSMSSubscriberById = async (id) => {
-  return SMSSubscriber.findById(id);
+  var user = await SMSSubscriber.findById( id  );
+
+ return await user.populate( 'lastSentVASMessage' ).execPopulate();
 };
 
 /**

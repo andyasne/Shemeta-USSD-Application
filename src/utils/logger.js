@@ -13,7 +13,7 @@
     transports: [
         new winston.transports.Console(),
     
-      new winston.transports.File({ filename: './logs/Subscribers Call Log.JSON'})
+      new winston.transports.File({ filename: './logs/Subscribers Call Log.txt'})
     ]
   });
    
