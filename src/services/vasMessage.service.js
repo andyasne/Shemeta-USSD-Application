@@ -85,16 +85,18 @@ const getNextVASMessage = async (currentVasMessageOrder) => {
   let currentReached = false;
   let nextVasMessage;
   vasMessages.forEach((vasMessage) => {
+    
+    if (Number(currentVasMessageOrder) === 0 && nextVasMessage === undefined) {
+      currentReached = true;
+      nextVasMessage = vasMessage;
+    } else if (vasMessage.order > Number(currentVasMessageOrder)) {
+      currentReached = true;
+    }
+
     if (currentReached) {
       if (vasMessage.isActive && nextVasMessage === undefined) {
         nextVasMessage = vasMessage;
       }
-    }
-    if (Number(currentVasMessageOrder) === 0 && nextVasMessage === undefined) {
-      currentReached = true;
-      nextVasMessage = vasMessage;
-    } else if (vasMessage.order === Number(currentVasMessageOrder)) {
-      currentReached = true;
     }
   });
 
