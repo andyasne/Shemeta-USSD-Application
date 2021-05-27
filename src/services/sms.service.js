@@ -6,6 +6,7 @@ const smsLabelService = require('./smsLabel.service');
 const ussdUserService = require('./ussdUser.service');
 const smsMessageService = require('./smsMessage.service');
 const smsTemplDataService = require('./smsTemplData.service');
+const sendingInfoLogger =require('../utils/logger').sendingInfoLogger;
 const axios = require('axios');
 
 const saveSMSTemplate = async (smsTemplate) => {
@@ -67,16 +68,31 @@ function fixedEncodeURIComponent(str) {
 async function sendMessage(builtMsg, to) {
   builtMsg =  fixedEncodeURIComponent(builtMsg);
   let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to="+to+"&from=9039&text="+builtMsg;
-  axios.get(SendURL)
+   axios.get(SendURL)
   .then(response => {
     console.log(response);
-    console.log(response);
-    return 'Sent with URL: '+ SendURL;
+    let sentStatus =  'Sent with URL: '+ SendURL;
+   let sendResult=   saveSentInfo(builtMsg, sentStatus, to);
+
+    sendingInfoLogger.log({
+      level: 'info',
+      message:sendResult
+    });
+ 
+    return sentStatus;
   })
   .catch(error => {
-   return 'Error Sending '+error;
+    let sentStatus =   'Error Sending '+error;
+   let sendResult=   saveSentInfo(builtMsg, sentStatus, to);
+
+    sendingInfoLogger.log({
+      level: 'error',
+       message:sendResult
+    });
+
+   return sentStatus;
   });
-    
+  
 }
 
 const sendSMSMessage = async (templateId, templateData, userId, to) => {
@@ -114,3 +130,18 @@ module.exports = {
   sendSMSMessage,
   sendMessage,
 };
+  function saveSentInfo(builtMsg, sentStatus, to) {
+  const smsMsg = {
+    
+   
+    status: sentStatus,
+    sentTime: new Date(),
+    from: '9039',
+    sentTo: to,
+    builtMessage: builtMsg
+  };
+
+      smsMessageService.createSMSMessage(smsMsg);
+      return smsMsg;
+}
+

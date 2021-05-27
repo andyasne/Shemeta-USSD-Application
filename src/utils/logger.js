@@ -13,10 +13,20 @@
     transports: [
         new winston.transports.Console(),
     
-      new winston.transports.File({ filename: './logs/Subscribers Call Log.txt'})
+      new winston.transports.File({ filename: './logs/Found Subscribers Log.txt'})
+    ]
+  });
+
+  const sendingInfoLogger = winston.createLogger({
+    transports: [
+        new winston.transports.Console(),
+    
+      new winston.transports.File({ filename: './logs/Sent Vas Messages.txt'})
     ]
   });
    
   module.exports = {
-    'getSubscribersLogger': getSubscribersLogger 
+    'getSubscribersLogger': getSubscribersLogger ,
+    'sendingInfoLogger':sendingInfoLogger
+
   };
