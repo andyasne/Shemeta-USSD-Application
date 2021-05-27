@@ -73,10 +73,10 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
+let SubscriberURL = "http://localhost/vas/subscribe.php?p=%p&t=%t&q=%q&a=%a&Q=%Q&sc=%P"
 
 async function getNewSubscribers() {
    
-  let SubscriberURL = "http://localhost/vas/subscribe.php?p=%p&t=%t&q=%q&a=%a&Q=%Q&sc=%P"
   axios.get(SubscriberURL)
   .then(response => {
     console.log(response.data);
@@ -103,8 +103,15 @@ async function getNewSubscribers() {
      }
   })
   .catch(error => {
-    console.log('Error Sending '+error);
+   
+    var separator = "-------------------ERROR: NO Connection TO Localhost-----------------------------";
+    getSubscribersLogger.info(separator);
  
+
+    var log = "Please CHeck the Link :-" +SubscriberURL;
+    getSubscribersLogger.info(log);
+
+
   });
     
 }
