@@ -12,6 +12,7 @@ router
   .delete(smsSubscriberController.deleteSMSSubscriber);
 
 router.route('/sendNextVasMessages').post(smsSubscriberController.sendNextVasMessagestoSMSSubscribers);
+router.route('/sendNextVasMessage').post(smsSubscriberController.sendNextVasMessagestoSMSSubscribersByPhoneNumber);
 router.route('/subscribeSMSSubscribers').post(smsSubscriberController.subscribeSMSSubscribers);
 router.route('/sendWelcomeMessage').post(smsSubscriberController.sendWelcomeMessage);
 

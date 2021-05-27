@@ -31,8 +31,13 @@ const querySMSSubscribers = async (filter) => {
   const smsSubscribers = await SMSSubscriber.find(filter); 
   return smsSubscribers;
 };
+
+const querySMSSubscribersFindOne = async (filter) => {
+  const smsSubscribers = await SMSSubscriber.findOne(filter); 
+  return smsSubscribers;
+};
 const getSMSSubscribers = async () => {
-  const smsSubscribers = await SMSSubscriber.find({}).populate('lastSentVASMessage').execPopulate(); 
+  const smsSubscribers = await SMSSubscriber.find({}) ;
   return smsSubscribers;
 };
 /**
@@ -45,6 +50,7 @@ const getSMSSubscriberById = async (id) => {
 
  return await user.populate( 'lastSentVASMessage' ).execPopulate();
 };
+ 
 
 /**
  * Update smsSubscriber by id
@@ -78,30 +84,43 @@ const deleteSMSSubscriberById = async (smsSubscriberId) => {
 async function sendVasMessage(smsSubscriber, nextVasMessage) {
   const smsTemplate = await smsTemplateService.getSMSTemplateById(nextVasMessage.smsTemplate);
   const smsLabel = await smsLabelService.getSMSLabelById(smsTemplate.smsLabel);
-  return smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
+  return   smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
 }
+
+async function SendNextVasMessageToSmsSubscriber(smsSubscriber) {
+  if (smsSubscriber.isActive) {
+    let nextVasMessage;
+    if (smsSubscriber.lastSentVASMessage === undefined) {
+      nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
+    } else {
+      nextVasMessage = await vasMessageService.getVASMessageById(smsSubscriber.lastSentVASMessage);
+      nextVasMessage = await vasMessageService.getNextVASMessage(Number(nextVasMessage.order));
+    }
+
+    if (nextVasMessage !== undefined) {
+      // send messages here
+      smsSubscriber.lastSentVASMessageResult = await sendVasMessage(smsSubscriber, nextVasMessage);
+      // update smsSubscriberNextMessage
+      // eslint-disable-next-line no-param-reassign
+      smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
+    return  await (await (await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber)).populate('lastSentVASMessage')).execPopulate();;
+    } 
+  }
+}
+
 const sendNextVasMessagestoSMSSubscribers = async () => {
   const smsSubscribers = await getSMSSubscribers();
-  smsSubscribers.forEach(async (smsSubscriber) => {
-    if (smsSubscriber.isActive) {
-      let nextVasMessage;
-      if (smsSubscriber.lastSentVASMessage === undefined) {
-        nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
-      } else {
-        nextVasMessage = await vasMessageService.getVASMessageById(smsSubscriber.lastSentVASMessage);
-        nextVasMessage = await vasMessageService.getNextVASMessage(Number(nextVasMessage.order));
-      }
-
-      if (nextVasMessage !== undefined) {
-        // send messages here
-        smsSubscriber.lastSentVASMessageResult=  await sendVasMessage(smsSubscriber, nextVasMessage);
-        // update smsSubscriberNextMessage
-        // eslint-disable-next-line no-param-reassign
-        smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
-        await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      }
-    }
-  });
+  const promises = [];
+     for (let i = 0; i < smsSubscribers.length; i++) {
+    promises.push(  await SendNextVasMessageToSmsSubscriber( smsSubscribers[i]));
+    }; 
+  const results = await Promise.all(promises);
+  return results;
+};
+const sendNextVasMessagestoSMSSubscriberByPhoneNumber = async (PhoneNumberFilter) => {
+  const smsSubscribers = await querySMSSubscribersFindOne(PhoneNumberFilter);
+  return  await SendNextVasMessageToSmsSubscriber(smsSubscribers);
+ 
 };
 
 const subscribeSMSSubscribers = async (smsSubscribers) => {
@@ -135,6 +154,8 @@ module.exports = {
   updateSMSSubscriberById,
   deleteSMSSubscriberById,
   sendNextVasMessagestoSMSSubscribers,
+  sendNextVasMessagestoSMSSubscriberByPhoneNumber,
   subscribeSMSSubscribers,
   sendWelcomeMessage,
 };
+

@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const { toJSON } = require('./plugins');
-const vasMessage = require('./vasMessage.model');
-
 
 const { Schema } = mongoose;
 const smsSubscriberSchema = mongoose.Schema({
@@ -22,7 +20,7 @@ const smsSubscriberSchema = mongoose.Schema({
   },
   lastSentVASMessage: {
     type: Schema.Types.ObjectId,
-    ref: vasMessage,
+    ref: 'VASMessage',
   }, 
   lastSentVASMessageResult: {
     type: String

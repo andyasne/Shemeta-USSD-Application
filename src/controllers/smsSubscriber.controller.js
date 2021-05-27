@@ -19,15 +19,24 @@ const sendWelcomeMessage = catchAsync(async (req, res) => {
 });
 
 const sendNextVasMessagestoSMSSubscribers = catchAsync(async (req, res) => {
-  await smsSubscriberService.sendNextVasMessagestoSMSSubscribers();
-  res.status(httpStatus.NO_CONTENT).send();
+  const result = await smsSubscriberService.sendNextVasMessagestoSMSSubscribers();
+  res.status(httpStatus.CREATED).send(result);
+
 });
 
 const getSMSSubscribers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['defaultLanguage']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await smsSubscriberService.querySMSSubscribers(filter, options);
-  res.send(result);
+  res.status(httpStatus.CREATED).send(result);
+});
+
+
+const sendNextVasMessagestoSMSSubscribersByPhoneNumber = catchAsync(async (req, res) => {
+  const filter = pick(req.query, ['phoneNumber']);
+  const result = await smsSubscriberService.sendNextVasMessagestoSMSSubscriberByPhoneNumber(filter);
+  res.status(httpStatus.CREATED).send(result);
+
 });
 
 const getSMSSubscriber = catchAsync(async (req, res) => {
@@ -55,6 +64,7 @@ module.exports = {
   updateSMSSubscriber,
   deleteSMSSubscriber,
   sendNextVasMessagestoSMSSubscribers,
+  sendNextVasMessagestoSMSSubscribersByPhoneNumber,
   subscribeSMSSubscribers,
   sendWelcomeMessage,
 };
