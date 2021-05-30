@@ -2,6 +2,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-undef */
 const mongoose = require('mongoose');
+const loadash = require('lodash');
 
 const httpStatus = require('http-status');
 const { SMSSubscriber } = require('../models');
@@ -11,7 +12,7 @@ const vasMessageService = require('./vasMessage.service');
 const smsService = require('./sms.service');
 const smsTemplateService = require('./smsTemplate.service');
 const smsLabelService = require('./smsLabel.service');
-
+const smsReceived=  require('../models/smsReceived.model')
 /**
  * Create a smsSubscriber
  * @param {Object} smsSubscriberBody
@@ -160,7 +161,7 @@ const receivedMessage = async (_smsReceived) => {
 
       let smsSubscriber ;
       
-      let allSubs = awaitgetSMSSubscribers();
+      let allSubs = await getSMSSubscribers();
     
       let shouldSkip = false;
       allSubs.forEach((sub)=>{
@@ -175,13 +176,13 @@ const receivedMessage = async (_smsReceived) => {
       });
 
       if (smsSubscriber==undefined) {
-        smsSubscriber = awaitcreateSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
+        smsSubscriber = await createSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
       }  
 
       if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
 
         smsSubscriber.isActive = true;
-       awaitupdateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+       await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
       }
 
 

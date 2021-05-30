@@ -4,6 +4,7 @@ const smsSubscriberController = require('../../controllers/smsSubscriber.control
 const router = express.Router();
 
 router.route('/').post(smsSubscriberController.createSMSSubscriber).get(smsSubscriberController.getSMSSubscribers);
+router.route('/receivedMessage').get(smsSubscriberController.receivedMessage);
 
 router
   .route('/:smsSubscriberId')
@@ -15,7 +16,7 @@ router.route('/sendNextVasMessages').post(smsSubscriberController.sendNextVasMes
 router.route('/sendNextVasMessage').post(smsSubscriberController.sendNextVasMessagestoSMSSubscribersByPhoneNumber);
 router.route('/subscribeSMSSubscribers').post(smsSubscriberController.subscribeSMSSubscribers);
 router.route('/sendWelcomeMessage').post(smsSubscriberController.sendWelcomeMessage);
-router.route('/receivedMessage').get(smsSubscriberController.receivedMessage);
+
 
 
 module.exports = router;

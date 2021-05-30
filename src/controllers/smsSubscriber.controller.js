@@ -1,8 +1,12 @@
 const httpStatus = require('http-status');
+const { replace } = require('lodash');
 const { pick } = require('lodash');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { smsSubscriberService } = require('../services');
+
+
+const smsReceived = require('../models/smsReceived.model')
 
 const createSMSSubscriber = catchAsync(async (req, res) => {
   const smsSubscriber = await smsSubscriberService.createSMSSubscriber(req.body);
@@ -63,7 +67,7 @@ const receivedMessage = catchAsync(async (req, res) => {
   _smsReceived.sentMessage = pick(req.query, ['a']).a;
   if ( _smsReceived.sentMessage  != null)  _smsReceived.sentMessage = replace( _smsReceived.sentMessage, "+", " ");
   _smsReceived.receiverPhoneNumber = pick(req.query, ['Q']).Q;
-   const result = await smsService.receivedMessage(_smsReceived);
+   const result = await smsSubscriberService.receivedMessage(_smsReceived);
   res.send(result);
 });
 module.exports = {
@@ -73,6 +77,8 @@ module.exports = {
   updateSMSSubscriber,
   deleteSMSSubscriber,
   sendNextVasMessagestoSMSSubscribers,
-  sendNextVasMessagestoSMSSubscribersByPhoneNumber,receivedMessage,  subscribeSMSSubscribers,
+  sendNextVasMessagestoSMSSubscribersByPhoneNumber,
+  receivedMessage,
+    subscribeSMSSubscribers,
   sendWelcomeMessage,
 };

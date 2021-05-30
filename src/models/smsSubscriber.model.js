@@ -25,12 +25,8 @@ const smsSubscriberSchema = mongoose.Schema({
   }, 
   lastSentVASMessageResult: {
     type: String
-  },
-}
-, {
-  toObject: { virtuals: true },
-  toJSON: { virtuals: true }
-}
+  }}
+ 
 );
 
 smsSubscriberSchema.virtual('phoneNumberTrim').get(function () {
