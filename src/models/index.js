@@ -16,3 +16,4 @@ module.exports.SMSTemplData = require('./smsTemplData.model');
 
 module.exports.SMSSubscriber = require('./smsSubscriber.model');
 module.exports.VASMessage = require('./vasMessage.model');
+module.exports.smsReceived = require('./smsReceived.model');

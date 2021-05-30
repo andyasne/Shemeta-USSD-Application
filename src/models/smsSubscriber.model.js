@@ -16,8 +16,9 @@ const smsSubscriberSchema = mongoose.Schema({
   isActive: {
     type: Boolean,
     required: true,
-    default: true,
+    default: false,
   },
+
   lastSentVASMessage: {
     type: Schema.Types.ObjectId,
     ref: 'VASMessage',
@@ -25,6 +26,19 @@ const smsSubscriberSchema = mongoose.Schema({
   lastSentVASMessageResult: {
     type: String
   },
+}
+, {
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true }
+}
+);
+
+smsSubscriberSchema.virtual('phoneNumberTrim').get(function () {
+  let result = this.phoneNumber;
+  if (this.phoneNumber.length >= 9) {
+     result = this.phoneNumber.substring(this.phoneNumber.length - 9, this.phoneNumber.length);
+   }
+  return result
 });
 smsSubscriberSchema.plugin(toJSON);
 

@@ -5,9 +5,12 @@ const smsTemplateService = require('./smsTemplate.service');
 const smsLabelService = require('./smsLabel.service');
 const ussdUserService = require('./ussdUser.service');
 const smsMessageService = require('./smsMessage.service');
+const smsSubscriberService = require('./smsSubscriber.service');
 const smsTemplDataService = require('./smsTemplData.service');
-const sendingInfoLogger =require('../utils/logger').sendingInfoLogger;
+const sendingInfoLogger = require('../utils/logger').sendingInfoLogger;
 const axios = require('axios');
+const smsReceived = require('../models/smsReceived.model');
+const { SMSSubscriber } = require('../models');
 
 const saveSMSTemplate = async (smsTemplate) => {
   const { smsLabel } = smsTemplate;
@@ -61,38 +64,38 @@ function getTemplDataVal(templData) {
   return '';
 }
 function fixedEncodeURIComponent(str) {
-  return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
     return '%' + c.charCodeAt(0).toString(16);
   });
 }
 async function sendMessage(builtMsg, to) {
-  builtMsg =  fixedEncodeURIComponent(builtMsg);
-  let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to="+to+"&from=9039&text="+builtMsg;
-   axios.get(SendURL)
-  .then(response => {
-    console.log(response);
-    let sentStatus =  'Sent with URL: '+ SendURL;
-   let sendResult=   saveSentInfo(builtMsg, sentStatus, to);
+  builtMsg = fixedEncodeURIComponent(builtMsg);
+  let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to=" + to + "&from=9039&text=" + builtMsg;
+  axios.get(SendURL)
+    .then(response => {
+      console.log(response);
+      let sentStatus = 'Sent with URL: ' + SendURL;
+      let sendResult = saveSentInfo(builtMsg, sentStatus, to);
 
-    sendingInfoLogger.log({
-      level: 'info',
-      message:sendResult
+      sendingInfoLogger.log({
+        level: 'info',
+        message: sendResult
+      });
+
+      return sentStatus;
+    })
+    .catch(error => {
+      let sentStatus = 'Error Sending ' + error;
+      let sendResult = saveSentInfo(builtMsg, sentStatus, to);
+
+      sendingInfoLogger.log({
+        level: 'error',
+        message: sendResult
+      });
+
+      return sentStatus;
     });
- 
-    return sentStatus;
-  })
-  .catch(error => {
-    let sentStatus =   'Error Sending '+error;
-   let sendResult=   saveSentInfo(builtMsg, sentStatus, to);
 
-    sendingInfoLogger.log({
-      level: 'error',
-       message:sendResult
-    });
-
-   return sentStatus;
-  });
-  
 }
 
 const sendSMSMessage = async (templateId, templateData, userId, to) => {
@@ -124,16 +127,66 @@ const sendSMSMessage = async (templateId, templateData, userId, to) => {
   return savedMsg;
 };
 
+const receivedMessage = async (_smsReceived) => {
+
+  const smsReceivedSaved = await smsReceived.create(_smsReceived);
+
+  if (smsReceivedSaved.senderPhoneNumber != undefined && smsReceivedSaved.senderPhoneNumber.length > 9) {
+
+    const trimmedPhoneNumber = smsReceivedSaved.senderPhoneNumber.substring(smsReceivedSaved.senderPhoneNumber.length - 9, smsReceivedSaved.senderPhoneNumber.length);
+
+    if (smsReceivedSaved.sentMessage != undefined && smsReceivedSaved.sentMessage.length > 0) {
+      const phoneFilter = { "phoneNumberTrim": trimmedPhoneNumber }
+
+      let smsSubscriber ;
+      
+      let allSubs = await smsSubscriberService.getSMSSubscribers();
+    
+      let shouldSkip = false;
+      allSubs.forEach((sub)=>{
+        if (shouldSkip) {
+          return;
+        }
+        if(sub.phoneNumberTrim==trimmedPhoneNumber){
+          smsSubscriber=sub;
+          return;
+        }
+
+      });
+
+      if (smsSubscriber==undefined) {
+        smsSubscriber = await smsSubscriberService.createSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
+      }  
+
+      if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
+
+        smsSubscriber.isActive = true;
+       await smsSubscriberService.updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
+
+
+      if (loadash.toLower(smsReceivedSaved.sentMessage) == "stop") {
+        smsSubscriber.isActive = false;
+        await    smsSubscriberService.updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
+    }
+  }
+  return smsReceivedSaved;
+};
+
+
+
 module.exports = {
   saveSMSTemplate,
   getAllSMSTemplate,
   sendSMSMessage,
   sendMessage,
+  receivedMessage
 };
-  function saveSentInfo(builtMsg, sentStatus, to) {
+function saveSentInfo(builtMsg, sentStatus, to) {
   const smsMsg = {
-    
-   
+
+
     status: sentStatus,
     sentTime: new Date(),
     from: '9039',
@@ -141,7 +194,7 @@ module.exports = {
     builtMessage: builtMsg
   };
 
-      smsMessageService.createSMSMessage(smsMsg);
-      return smsMsg;
+  smsMessageService.createSMSMessage(smsMsg);
+  return smsMsg;
 }
 

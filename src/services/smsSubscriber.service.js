@@ -18,6 +18,7 @@ const smsLabelService = require('./smsLabel.service');
  * @returns {Promise<SMSSubscriber>}
  */
 const createSMSSubscriber = async (smsSubscriberBody) => {
+  
   const smsSubscriber = await SMSSubscriber.create(smsSubscriberBody);
   return smsSubscriber;
 };
@@ -60,6 +61,7 @@ const getSMSSubscriberById = async (id) => {
  */
 const updateSMSSubscriberById = async (smsSubscriberId, updateBody) => {
   const smsSubscriber = await getSMSSubscriberById(smsSubscriberId);
+   
   if (!smsSubscriber) {
     throw new ApiError(httpStatus.NOT_FOUND, 'SMSSubscriber not found');
   }
@@ -153,8 +155,9 @@ module.exports = {
   getSMSSubscribers,
   updateSMSSubscriberById,
   deleteSMSSubscriberById,
-  sendNextVasMessagestoSMSSubscribers,
-  sendNextVasMessagestoSMSSubscriberByPhoneNumber,
+  querySMSSubscribersFindOne,
+  sendNextVasMessagestoSMSSubscribers, 
+   
   subscribeSMSSubscribers,
   sendWelcomeMessage,
 };

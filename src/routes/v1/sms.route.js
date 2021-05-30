@@ -7,6 +7,9 @@ router.route('/template').get(smsController.getAllSMSTemplate).post(smsControlle
 router.route('/smsMessages').get(smsController.getAllSentSMSMessages);
 router.route('/send').post(smsController.sendSMSMessage);
 
+router.route('/receivedMessage').get(smsController.receivedMessage);
+
+
 // router.route('/getUserData').get(menuController.getUserData);
 // router.route('/getModelDefinitions').get(menuController.getModelDefinitions);
 
