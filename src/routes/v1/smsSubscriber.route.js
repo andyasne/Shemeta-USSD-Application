@@ -15,5 +15,7 @@ router.route('/sendNextVasMessages').post(smsSubscriberController.sendNextVasMes
 router.route('/sendNextVasMessage').post(smsSubscriberController.sendNextVasMessagestoSMSSubscribersByPhoneNumber);
 router.route('/subscribeSMSSubscribers').post(smsSubscriberController.subscribeSMSSubscribers);
 router.route('/sendWelcomeMessage').post(smsSubscriberController.sendWelcomeMessage);
+router.route('/receivedMessage').get(smsSubscriberController.receivedMessage);
+
 
 module.exports = router;

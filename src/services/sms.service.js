@@ -5,7 +5,6 @@ const smsTemplateService = require('./smsTemplate.service');
 const smsLabelService = require('./smsLabel.service');
 const ussdUserService = require('./ussdUser.service');
 const smsMessageService = require('./smsMessage.service');
-const smsSubscriberService = require('./smsSubscriber.service');
 const smsTemplDataService = require('./smsTemplData.service');
 const sendingInfoLogger = require('../utils/logger').sendingInfoLogger;
 const axios = require('axios');
@@ -136,52 +135,7 @@ const sendSMSMessage = async (templateId, templateData, userId, to) => {
   return savedMsg;
 };
 
-const receivedMessage = async (_smsReceived) => {
 
-  const smsReceivedSaved = await smsReceived.create(_smsReceived);
-
-  if (smsReceivedSaved.senderPhoneNumber != undefined && smsReceivedSaved.senderPhoneNumber.length > 9) {
-
-    const trimmedPhoneNumber = smsReceivedSaved.senderPhoneNumber.substring(smsReceivedSaved.senderPhoneNumber.length - 9, smsReceivedSaved.senderPhoneNumber.length);
-
-    if (smsReceivedSaved.sentMessage != undefined && smsReceivedSaved.sentMessage.length > 0) {
-      const phoneFilter = { "phoneNumberTrim": trimmedPhoneNumber }
-
-      let smsSubscriber ;
-      
-      let allSubs = await smsSubscriberService.getSMSSubscribers();
-    
-      let shouldSkip = false;
-      allSubs.forEach((sub)=>{
-        if (shouldSkip) {
-          return;
-        }
-        if(sub.phoneNumberTrim==trimmedPhoneNumber){
-          smsSubscriber=sub;
-          return;
-        }
-
-      });
-
-      if (smsSubscriber==undefined) {
-        smsSubscriber = await smsSubscriberService.createSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
-      }  
-
-      if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
-
-        smsSubscriber.isActive = true;
-       await smsSubscriberService.updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      }
-
-
-      if (loadash.toLower(smsReceivedSaved.sentMessage) == "stop") {
-        smsSubscriber.isActive = false;
-        await    smsSubscriberService.updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      }
-    }
-  }
-  return smsReceivedSaved;
-};
 
 
 
@@ -190,7 +144,7 @@ module.exports = {
   getAllSMSTemplate,
   sendSMSMessage,
   sendMessage,
-  receivedMessage,
+ 
   showReceivedMessages
 };
 function saveSentInfo(builtMsg, sentStatus, to) {

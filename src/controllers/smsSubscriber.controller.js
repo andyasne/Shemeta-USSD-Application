@@ -56,7 +56,16 @@ const deleteSMSSubscriber = catchAsync(async (req, res) => {
   await smsSubscriberService.deleteSMSSubscriberById(req.params.smsSubscriberId);
   res.status(httpStatus.NO_CONTENT).send();
 });
-
+const receivedMessage = catchAsync(async (req, res) => {
+  let _smsReceived = new smsReceived();
+  _smsReceived.senderPhoneNumber = pick(req.query, ['p']).p;
+  _smsReceived.sentTime = pick(req.query, ['t']).t;
+  _smsReceived.sentMessage = pick(req.query, ['a']).a;
+  if ( _smsReceived.sentMessage  != null)  _smsReceived.sentMessage = replace( _smsReceived.sentMessage, "+", " ");
+  _smsReceived.receiverPhoneNumber = pick(req.query, ['Q']).Q;
+   const result = await smsService.receivedMessage(_smsReceived);
+  res.send(result);
+});
 module.exports = {
   createSMSSubscriber,
   getSMSSubscribers,
@@ -64,7 +73,6 @@ module.exports = {
   updateSMSSubscriber,
   deleteSMSSubscriber,
   sendNextVasMessagestoSMSSubscribers,
-  sendNextVasMessagestoSMSSubscribersByPhoneNumber,
-  subscribeSMSSubscribers,
+  sendNextVasMessagestoSMSSubscribersByPhoneNumber,receivedMessage,  subscribeSMSSubscribers,
   sendWelcomeMessage,
 };

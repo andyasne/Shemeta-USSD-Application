@@ -147,7 +147,52 @@ const sendWelcomeMessage = async (smsSubscribers) => {
   const results = await Promise.all(promises);
   return results;
 };
+const receivedMessage = async (_smsReceived) => {
 
+  const smsReceivedSaved = await smsReceived.create(_smsReceived);
+
+  if (smsReceivedSaved.senderPhoneNumber != undefined && smsReceivedSaved.senderPhoneNumber.length > 9) {
+
+    const trimmedPhoneNumber = smsReceivedSaved.senderPhoneNumber.substring(smsReceivedSaved.senderPhoneNumber.length - 9, smsReceivedSaved.senderPhoneNumber.length);
+
+    if (smsReceivedSaved.sentMessage != undefined && smsReceivedSaved.sentMessage.length > 0) {
+      const phoneFilter = { "phoneNumberTrim": trimmedPhoneNumber }
+
+      let smsSubscriber ;
+      
+      let allSubs = awaitgetSMSSubscribers();
+    
+      let shouldSkip = false;
+      allSubs.forEach((sub)=>{
+        if (shouldSkip) {
+          return;
+        }
+        if(sub.phoneNumberTrim==trimmedPhoneNumber){
+          smsSubscriber=sub;
+          return;
+        }
+
+      });
+
+      if (smsSubscriber==undefined) {
+        smsSubscriber = awaitcreateSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
+      }  
+
+      if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
+
+        smsSubscriber.isActive = true;
+       awaitupdateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
+
+
+      if (loadash.toLower(smsReceivedSaved.sentMessage) == "stop") {
+        smsSubscriber.isActive = false;
+        await   updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
+    }
+  }
+  return smsReceivedSaved;
+};
 module.exports = {
   createSMSSubscriber,
   querySMSSubscribers,
@@ -156,8 +201,9 @@ module.exports = {
   updateSMSSubscriberById,
   deleteSMSSubscriberById,
   querySMSSubscribersFindOne,
+  receivedMessage,
   sendNextVasMessagestoSMSSubscribers, 
-   
+  sendNextVasMessagestoSMSSubscriberByPhoneNumber,
   subscribeSMSSubscribers,
   sendWelcomeMessage,
 };
