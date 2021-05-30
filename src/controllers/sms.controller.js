@@ -23,6 +23,12 @@ const getAllSMSTemplate = catchAsync(async (req, res) => {
   res.send(templ);
 });
 
+const showReceivedMessages = catchAsync(async (req, res) => {
+  const templ = await smsService.showReceivedMessages();
+  res.send(templ);
+});
+
+
 const getAllSentSMSMessages = catchAsync(async (req, res) => {
   const msgs = await smsMessageService.getSMSMessages();
   res.status(httpStatus.OK).send(msgs);
@@ -44,5 +50,6 @@ module.exports = {
   getAllSMSTemplate,
   sendSMSMessage,
   getAllSentSMSMessages,
-  receivedMessage
+  receivedMessage,
+  showReceivedMessages
 };

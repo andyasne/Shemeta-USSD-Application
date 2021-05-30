@@ -44,6 +44,15 @@ const getAllSMSTemplate = async () => {
   return smsTemplates;
 };
 
+
+const showReceivedMessages = async () => {
+  const smsReceivedMsgs = await smsReceived.find({});
+  return smsReceivedMsgs;
+   
+};
+
+
+
 async function getDefaultTemplateLabel(template, user) {
   const lbl = await smsLabelService.getSMSLabelById(template.smsLabel.toString());
   if (user.defaultLanguage === 'en') {
@@ -181,7 +190,8 @@ module.exports = {
   getAllSMSTemplate,
   sendSMSMessage,
   sendMessage,
-  receivedMessage
+  receivedMessage,
+  showReceivedMessages
 };
 function saveSentInfo(builtMsg, sentStatus, to) {
   const smsMsg = {

@@ -8,6 +8,7 @@ router.route('/smsMessages').get(smsController.getAllSentSMSMessages);
 router.route('/send').post(smsController.sendSMSMessage);
 
 router.route('/receivedMessage').get(smsController.receivedMessage);
+router.route('/showReceivedMessages').get(smsController.showReceivedMessages);
 
 
 // router.route('/getUserData').get(menuController.getUserData);
