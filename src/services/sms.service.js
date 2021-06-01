@@ -78,7 +78,7 @@ function fixedEncodeURIComponent(str) {
 }
 async function sendMessage(builtMsg, to) {
   builtMsg = fixedEncodeURIComponent(builtMsg);
-  let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to=" + to + "&from=9039&text=" + builtMsg;
+  let SendURL = "http://localhost:13014/cgi-bin/sendsms?user=Alif@sms&password=Alif@123&to=" + to + "&from=9039&text=" + builtMsg+"&coding=2&charset=UTF-8";
   axios.get(SendURL)
     .then(response => {
       console.log(response);

@@ -16,7 +16,7 @@ const smsSubscriberSchema = mongoose.Schema({
   isActive: {
     type: Boolean,
     required: true,
-    default: false,
+    default: true,
   },
 
   lastSentVASMessage: {

@@ -179,16 +179,20 @@ const receivedMessage = async (_smsReceived) => {
         smsSubscriber = await createSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
       }  
 
-      if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
+      // if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
 
-        smsSubscriber.isActive = true;
-       await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      }
+      //   smsSubscriber.isActive = true;
+      //  await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      // }
 
 
       if (loadash.toLower(smsReceivedSaved.sentMessage) == "stop") {
         smsSubscriber.isActive = false;
         await   updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
+      else{
+        smsSubscriber.isActive = true;
+        await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
       }
     }
   }
