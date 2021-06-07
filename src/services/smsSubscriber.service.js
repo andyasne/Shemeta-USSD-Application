@@ -140,11 +140,12 @@ const sendWelcomeMessage = async (smsSubscribers) => {
   const wellcomeVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
 
   const promises = [];
+  if(wellcomeVasMessage!==null){
   for (let i = 0; i < smsSubscribers.length; i++) {
     sendVasMessage(smsSubscribers[i], wellcomeVasMessage);
     smsSubscribers[i].lastSentVASMessage = new mongoose.Types.ObjectId(wellcomeVasMessage.id);
     promises.push(updateSMSSubscriberById(smsSubscribers[i].id, smsSubscribers[i]));
-  }
+  }}
   const results = await Promise.all(promises);
   return results;
 };

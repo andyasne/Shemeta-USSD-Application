@@ -13,6 +13,7 @@ const ussdUserRoute = require('./ussdUser.route');
 const smsRoute = require('./sms.route');
 const smsSubscriberRoute = require('./smsSubscriber.route');
 const vasMessageRoute = require('./vasMessage.route');
+const shemetaReceiverRoute = require('./shemetaReceiver.route');
 
 const router = express.Router();
 
@@ -29,5 +30,6 @@ router.use('/ussdUser', ussdUserRoute);
 router.use('/sms', smsRoute);
 router.use('/smsSubscriber', smsSubscriberRoute);
 router.use('/vasMessage', vasMessageRoute);
+router.use('/shemeta', shemetaReceiverRoute);
 
 module.exports = router;
