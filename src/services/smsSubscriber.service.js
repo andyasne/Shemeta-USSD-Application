@@ -175,26 +175,36 @@ const receivedMessage = async (_smsReceived) => {
         }
 
       });
+     
 
       if (smsSubscriber==undefined) {
         smsSubscriber = await createSMSSubscriber( { "phoneNumber": smsReceivedSaved.senderPhoneNumber });
       }  
 
-      // if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
+      if (smsSubscriber==undefined || smsSubscriber.isActive==false) {
+        if(loadash.toLower(smsReceivedSaved.sentMessage) !== "ok") {
+        //Send a Message Here: send OK 
+        const senOkMessage = await vasMessageService.getNextVASMessage(-1); 
+        if(senOkMessage!==undefined){
+        sendVasMessage(smsSubscriber, senOkMessage);
+        }
+      }
+      }
+      if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
 
-      //   smsSubscriber.isActive = true;
-      //  await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      // }
+        smsSubscriber.isActive = true;
+       await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      }
 
 
       if (loadash.toLower(smsReceivedSaved.sentMessage) == "stop") {
         smsSubscriber.isActive = false;
         await   updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
       }
-      else{
-        smsSubscriber.isActive = true;
-        await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
-      }
+      // else{
+      //   smsSubscriber.isActive = true;
+      //   await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber);
+      // }
     }
   }
   return smsReceivedSaved;
