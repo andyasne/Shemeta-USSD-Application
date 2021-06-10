@@ -184,10 +184,15 @@ const receivedMessage = async (_smsReceived) => {
       if (smsSubscriber==undefined || smsSubscriber.isActive==false) {
         if(loadash.toLower(smsReceivedSaved.sentMessage) !== "ok") {
         //Send a Message Here: send OK 
-        const senOkMessage = await vasMessageService.getNextVASMessage(-1); 
-        if(senOkMessage!==undefined){
-        sendVasMessage(smsSubscriber, senOkMessage);
-        }
+        const query = {
+          order: -1 
+        };
+       
+        const senOkMessage = await vasMessageService.queryVASMessages(query,null); 
+        if (senOkMessage.length !== 0) {
+         sendVasMessage(smsSubscriber, senOkMessage[0]);
+        
+      }
       }
       }
       if (loadash.toLower(smsReceivedSaved.sentMessage) == "ok") {
