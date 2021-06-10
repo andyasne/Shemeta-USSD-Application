@@ -91,7 +91,7 @@ async function sendVasMessage(smsSubscriber, nextVasMessage) {
 }
 
 async function SendNextVasMessageToSmsSubscriber(smsSubscriber) {
-  if (smsSubscriber.isActive) {
+  if (smsSubscriber!==undefined){ if (smsSubscriber.isActive) {
     let nextVasMessage;
     if (smsSubscriber.lastSentVASMessage === undefined) {
       nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
@@ -107,7 +107,7 @@ async function SendNextVasMessageToSmsSubscriber(smsSubscriber) {
       // eslint-disable-next-line no-param-reassign
       smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
     return  await (await (await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber)).populate('lastSentVASMessage')).execPopulate();;
-    } 
+    } }
   }
 }
 
