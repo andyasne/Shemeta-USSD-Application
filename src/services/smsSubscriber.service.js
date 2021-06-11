@@ -89,9 +89,22 @@ async function sendVasMessage(smsSubscriber, nextVasMessage) {
   const smsLabel = await smsLabelService.getSMSLabelById(smsTemplate.smsLabel);
   return   smsService.sendMessage(smsLabel.am, smsSubscriber.phoneNumber);
 }
+ 
+const sendNextVasMessagestoSMSSubscriberByPhoneNumber =  async (PhoneNumberFilter) => {
+  const q = { phoneNumber: PhoneNumberFilter.phoneNumber};
+     SMSSubscriber.findOne(q,function (err, subscriber) {
+       if(subscriber==null){
+         return "PhoneNumber is Not registered as sms subscriber";
+       } else{
+        return SendNextVasMessageToSmsSubscriber( subscriber);
+       }
+ }); 
+
+};
 
 async function SendNextVasMessageToSmsSubscriber(smsSubscriber) {
-  if (smsSubscriber!==undefined){ if (smsSubscriber.isActive) {
+  if (smsSubscriber!==null){ 
+    if (smsSubscriber.isActive) {
     let nextVasMessage;
     if (smsSubscriber.lastSentVASMessage === undefined) {
       nextVasMessage = await vasMessageService.getNextVASMessage(0); // SELECT THE FIRST MESSAGE
@@ -108,6 +121,12 @@ async function SendNextVasMessageToSmsSubscriber(smsSubscriber) {
       smsSubscriber.lastSentVASMessage = new mongoose.Types.ObjectId(nextVasMessage.id);
     return  await (await (await updateSMSSubscriberById(smsSubscriber._id, smsSubscriber)).populate('lastSentVASMessage')).execPopulate();;
     } }
+    else{
+      return "Subscriber is Inactive";
+    }
+  } else{
+    return "PhoneNumber is Not registered as sms subscriber";
+
   }
 }
 
@@ -120,11 +139,9 @@ const sendNextVasMessagestoSMSSubscribers = async () => {
   const results = await Promise.all(promises);
   return results;
 };
-const sendNextVasMessagestoSMSSubscriberByPhoneNumber = async (PhoneNumberFilter) => {
-  const smsSubscribers = await querySMSSubscribersFindOne(PhoneNumberFilter);
-  return  await SendNextVasMessageToSmsSubscriber(smsSubscribers);
- 
-};
+
+
+
 
 const subscribeSMSSubscribers = async (smsSubscribers) => {
   const promises = [];
