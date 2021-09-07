@@ -79,6 +79,6 @@ module.exports = {
   sendNextVasMessagestoSMSSubscribers,
   sendNextVasMessagestoSMSSubscribersByPhoneNumber,
   receivedMessage,
-    subscribeSMSSubscribers,
+  subscribeSMSSubscribers,
   sendWelcomeMessage,
 };

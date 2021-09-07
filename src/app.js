@@ -61,7 +61,7 @@ if (config.env === 'production') {
 }
 
 // v1 api routes
-app.use('/', routes);
+app.use('/v1/', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
@@ -73,64 +73,5 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
-let SubscriberURL = "http://localhost/vas/subscribe.php?p=%p&t=%t&q=%q&a=%a&Q=%Q&sc=%P"
-
-// async function getNewSubscribers() {
-   
-//   axios.get(SubscriberURL)
-//   .then(response => {
-//     console.log(response.data);
-   
-//     var separator = "------------------------------------------------";
-//    var logHeader = "Checking for New Subscriptions-"+ new Date( Date.now()).toTimeString();
-
-//     getSubscribersLogger.info(separator);
-//     getSubscribersLogger.info(logHeader);
-//     getSubscribersLogger.log({
-//       level: 'info',
-  
-//       message:response.data
-//     });
-   
-
-//      if(response.data.search("Not Found")>=0) //a number is found
-//      {
-
-//       //1.extract the number
-
-//       //2. 
-
-//      }
-//   })
-//   .catch(error => {
-   
-//     var separator = "-------------------ERROR: NO Connection TO Localhost-----------------------------";
-//     getSubscribersLogger.info(separator);
  
-
-//     var log = "Please CHeck the Link :-" +SubscriberURL;
-//     getSubscribersLogger.info(log);
-
-
-//   });
-    
-// }
-
-// agenda.define('check new subscriptions', async job => {
-   
-//   console.log(`Checking for New Subscriptions-`+ new Date( Date.now()).toTimeString());
- 
-//   getNewSubscribers();
-//   /**
-//    * Replace the dummy log and write your code here
-//    */
-// });
-
-
-// (async function() {
-//   const helloJob = agenda.create( 'check new subscriptions');
-//   await agenda.start();  
-//   await helloJob.repeatEvery('5 seconds').save(); 
-// })();
-
 module.exports = app;
